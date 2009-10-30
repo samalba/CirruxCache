@@ -1,0 +1,4 @@
+cron:
+- description: clean expired entries
+  url: /_cron/expired
+  schedule: every 1 hours
