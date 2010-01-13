@@ -52,12 +52,12 @@ urls = (
 # You can define and configure your Point Of Presence
 
 class Static(Service):
-	origin = 'http://zws.zoomorama.net'
+	origin = 'http://static.mydomain.tld'
 	maxTTL = 2592000 # 1 month
 	ignoreQueryString = True
 
 class Www(Service):
-	origin = 'http://zws.zoomorama.net'
+	origin = 'http://www.mydomain.tld'
 	forceTTL = 3600 # 1 hour
 	ignoreQueryString = True
 	forwardPost = False
