@@ -22,6 +22,7 @@ import web
 
 from google.appengine.ext import db
 from google.appengine.api import memcache
+from google.appengine.ext.db import stats
 
 import lib.cache
 
@@ -45,10 +46,15 @@ class Cron(object):
 		# entity selection is limited by 1000 but often timeout
 		limit = 800
 		batch = []
-		for obj in lib.cache.Cache.all(keys_only=True) \
-				.filter('expires <=', now) \
-				.order('expires').fetch(limit):
-					batch.append(obj)
+		# Browse all Datastore kinds to find expired entities
+		for kind in stats.KindStat.all():
+			if kind.kind_name.startswith('__'):
+				continue
+			cache = type(str(kind.kind_name), (lib.cache.Cache,), {})
+			for obj in cache.all(keys_only=True) \
+					.filter('expires <=', now) \
+					.order('expires').fetch(limit):
+						batch.append(obj)
 		n = len(batch)
 		if n == 0:
 			logging.info('cron: no expired entities.')

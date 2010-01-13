@@ -107,9 +107,16 @@ class Service(object):
 			'via'
 			]
 
+	def __init__(self):
+		self.name = self.__class__.__name__
+		self.cache = type(self.name, (Cache,), {})
+		# Register the dynamic object globally
+		# if not, pickle cannot find it for serialization
+		globals()[self.name] = self.cache
+
 	def GET(self, request):
 		if self.ignoreQueryString is False:
-			request = web.ctx.fullpath
+			request += web.ctx.query
 		try:
 			cache = self.readCache(request)
 			if cache is None:
@@ -124,7 +131,7 @@ class Service(object):
 
 	def POST(self, request):
 		if self.ignoreQueryString is False:
-			request = web.ctx.fullpath
+			request += web.ctx.query
 		url = self.origin + request
 		if self.forwardPost is False:
 			raise web.SeeOther(request, absolute=True)
@@ -134,7 +141,7 @@ class Service(object):
 		# Set your client IP address to authorize cache entry deletion
 		allowedIP = ['127.0.0.1']
 		if not web.ctx.env['REMOTE_ADDR'] in allowedIP:
-			return ''
+			raise web.Forbidden()
 		if request.split('/').pop() == '__ALL__':
 			if 'memcache' in  web.ctx.query:
 				memcache.flush_all()
@@ -155,8 +162,8 @@ class Service(object):
 				db.delete(batch[i:i+step])
 			return '%s entries flushed\n' % n
 		if self.ignoreQueryString is False:
-			request = web.ctx.fullpath
-		cache = Cache.get_by_key_name(request)
+			request += web.ctx.query
+		cache = self.cache.get_by_key_name(request)
 		if cache:
 			cache.delete()
 		memcache.delete(request)
@@ -164,6 +171,8 @@ class Service(object):
 
 	def memcacheSet(self, *args, **kwargs):
 		try:
+			if 'key' in kwargs:
+				kwargs['key'] = '%s_%s' % (self.name, kwargs['key'])
 			if 'time' in kwargs and isinstance(kwargs['time'], datetime.datetime):
 				kwargs['time'] = time.mktime(kwargs['time'].timetuple())
 			memcache.set(*args, **kwargs)
@@ -172,6 +181,7 @@ class Service(object):
 
 	def memcacheGet(self, *args, **kwargs):
 		try:
+			args = ('%s_%s' % (self.name, args[0]), )
 			cache = memcache.get(*args, **kwargs)
 			return cache
 		except Exception, e:
@@ -185,7 +195,7 @@ class Service(object):
 			return cache
 		try:
 			logging.debug('fetch from datastore')
-			cache = Cache.get_by_key_name(key)
+			cache = self.cache.get_by_key_name(key)
 		except Exception, e:
 			logging.warning('datastore fetch error (%s: %s)' % (type(e), e))
 		if not cache:
@@ -230,7 +240,7 @@ class Service(object):
 			return cache
 		elif response.status_code != 200:
 			self.forwardResponse(response)
-		cache = Cache(key_name=request)
+		cache = self.cache(key_name=request)
 		cache.data = db.Blob(response.content)
 		cache.maxAge = self.getMaxAge(response.headers)
 		cache.lastRefresh = datetime.datetime.utcnow()

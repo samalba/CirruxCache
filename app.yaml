@@ -22,13 +22,14 @@ runtime: python
 api_version: 1
 
 handlers:
-- url: /crossdomain\.xml
-  static_files: static/crossdomain.xml
-  upload: static/crossdomain.xml
+# Uncomment theses 3 lignes below to use serve a static crossdomain.xml file
+#- url: /crossdomain\.xml
+#  static_files: static/crossdomain.xml
+#  upload: static/crossdomain.xml
 
-- url: /__app\.yaml
-  static_files: __app.yaml
-  upload: __app.yaml
+#- url: /__app\.yaml
+#  static_files: __app.yaml
+#  upload: __app.yaml
 
 - url: /.*
   script: app.py

@@ -23,7 +23,7 @@ http://cirrux.org/cache/
 http://code.google.com/p/cirruxcache/
 """
 
-__version__ = '0.1'
+__version__ = 'trunk'
 __author__ = [
     'Samuel Alba <sam.alba@gmail.com>'
 ]
@@ -42,8 +42,8 @@ from lib.cache import *
 # URL mapping
 urls = (
 #		'(/debug/.*)', 'Debug',
-		'(/static/.*)', 'Static',
-		'(/www/.*)', 'Www',
+		'(/data/.*)', 'Static',
+		'/www(/.*)', 'Www',
 		'/_cron/(.*)', 'Cron',
 		'(/.*)', 'Root'
 		)
@@ -52,18 +52,20 @@ urls = (
 # You can define and configure your Point Of Presence
 
 class Static(Service):
-	origin = 'http://static.mydomain.tld'
+	origin = 'http://zws.zoomorama.net'
 	maxTTL = 2592000 # 1 month
 	ignoreQueryString = True
 
 class Www(Service):
-	origin = 'http://www.mydomain.tld'
+	origin = 'http://zws.zoomorama.net'
 	forceTTL = 3600 # 1 hour
 	ignoreQueryString = True
 	forwardPost = False
 
 # !POP
 
+# Dynamic configuration
+# disabled for performance issue
 #def initServices(urls):
 #	cfg = config.Config()
 #	for service, meta in cfg.all():
@@ -75,7 +77,7 @@ class Www(Service):
 
 class Root(object):
 	def GET(self, request):
-		return 'CirruxCache 0.1 / shad ; written by Samuel Alba <sam.alba@gmail.com>'
+		return 'CirruxCache %s / shad ; written by Samuel Alba <sam.alba@gmail.com> / http://shad.cc/' % __version__
 
 if __name__ == '__main__':
 #	urls = initServices(urls)
