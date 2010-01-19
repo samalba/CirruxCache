@@ -104,7 +104,8 @@ class Service(object):
 	headerBlacklist = [
 			'date',
 			'last-modified',
-			'via'
+			'via',
+			'expires'
 			]
 
 	def __init__(self):
@@ -125,6 +126,7 @@ class Service(object):
 			cache = self.writeCache(request, cache())
 		if not web.modified(cache.lastModified):
 			raise web.HTTPError(status='304 Not Modified')
+		web.header('Expires', web.httpdate(cache.expires))
 		for h in cache.headers:
 			print h
 		return cache.data
