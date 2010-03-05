@@ -22,7 +22,7 @@ runtime: python
 api_version: 1
 
 handlers:
-# Uncomment theses 3 lignes below to use serve a static crossdomain.xml file
+# Uncomment theses 3 lignes below to serve a static crossdomain.xml file
 #- url: /crossdomain\.xml
 #  static_files: static/crossdomain.xml
 #  upload: static/crossdomain.xml

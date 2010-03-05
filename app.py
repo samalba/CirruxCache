@@ -30,6 +30,7 @@ __author__ = [
 __license__ = 'GNU Public License version 2'
 
 import sys
+sys.path.append('lib')
 sys.path.append('contrib')
 
 import logging
@@ -37,26 +38,29 @@ import web
 
 from services.cron import Cron
 from services.debug import Debug
-from lib.cache import *
+from lib import cache, redirect, forward
+
 
 # URL mapping
-urls = (
+urls = {}
+
+urls['default'] = (
 #		'(/debug/.*)', 'Debug',
 		'(/data/.*)', 'Static',
 		'/www(/.*)', 'Www',
 		'/_cron/(.*)', 'Cron',
-		'(/.*)', 'Root'
+		'/(.*)', 'Root'
 		)
 
 # POP definition
 # You can define and configure your Point Of Presence
 
-class Static(Service):
+class Static(cache.Service):
 	origin = 'http://static.mydomain.tld'
 	maxTTL = 2592000 # 1 month
 	ignoreQueryString = True
 
-class Www(Service):
+class Www(cache.Service):
 	origin = 'http://www.mydomain.tld'
 	forceTTL = 3600 # 1 hour
 	ignoreQueryString = True
@@ -76,8 +80,25 @@ class Www(Service):
 #	return urls
 
 class Root(object):
+
 	def GET(self, request):
-		return 'CirruxCache %s / shad ; written by Samuel Alba <sam.alba@gmail.com> / http://shad.cc/' % __version__
+		web.header('Content-Type', 'text/plain')
+		content = 'CirruxCache (%s) / http://code.google.com/p/cirruxcache/\n' % __version__
+		if request:
+			raise web.HTTPError(status='404 Not Found', data=content)
+		return content
+
+class VhostMapper(object):
+
+	def __iter__(self):
+		url = ('/(.*)', 'Root')
+		if 'HTTP_HOST' in web.ctx.environ:
+			vhost = web.ctx.environ['HTTP_HOST']
+			if vhost in urls:
+				url = urls[vhost]
+			elif 'default' in urls:
+				url = urls['default']
+		return iter(url)
 
 if __name__ == '__main__':
 #	urls = initServices(urls)
@@ -86,5 +107,5 @@ if __name__ == '__main__':
 #	from services.debug import Debug
 #	urls = ('(/debug/.*)', 'Debug') + urls
 #	logging.getLogger().setLevel(logging.DEBUG)
-	app = web.application(urls, globals())
+	app = web.application(VhostMapper(), globals())
 	app.cgirun()

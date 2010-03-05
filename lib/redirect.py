@@ -16,24 +16,26 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-import pprint
-import web
 import http
 
-class Debug(object):
+class Service(http.Base):
 
-	"""Debug service. Useful to dump the client context."""
+	"""Redirect service
 
-	def GET(self, request):
-		pp = pprint.PrettyPrinter(indent=4)
-		yield 'Request: %s\n' % request
-		yield 'Globals: %s\n' % pp.pformat(globals())
-		yield 'web.ctx: %s\n' % pp.pformat(dict(web.ctx))
-		headers = {}
-		for key, value in web.ctx.environ.iteritems():
-			if not key.startswith('HTTP_'):
-				continue
-			key = '-'.join([k.capitalize() for k in key[5:].split('_')])
-			headers[key] = value
-		headers['User-Agent'] = http.userAgent
-		yield 'headers: %s' % pp.pformat(headers)
+	All requests handled by this service will be redirected
+	to the origin.
+
+	- origin: Set the origin url
+	- code: Set the redirection code (default: 301)
+	"""
+
+	origin = None
+	code = 301
+
+	def __getattr__(self, attr):
+		def _impl(request):
+			request += web.ctx.query
+			web.header('Location', self.origin + request)
+			status = '%s %s' % (self.code, http.httpResponses[self.code])
+			raise web.HTTPError(status=status)
+		return _impl

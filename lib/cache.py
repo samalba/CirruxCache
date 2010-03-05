@@ -25,56 +25,8 @@ from google.appengine.ext import db
 from google.appengine.api import memcache
 from google.appengine.api import urlfetch, urlfetch_errors
 
-
-# Copy from httplib
-httpResponses = {
-    100: 'Continue',
-    101: 'Switching Protocols',
-
-    200: 'OK',
-    201: 'Created',
-    202: 'Accepted',
-    203: 'Non-Authoritative Information',
-    204: 'No Content',
-    205: 'Reset Content',
-    206: 'Partial Content',
-
-    300: 'Multiple Choices',
-    301: 'Moved Permanently',
-    302: 'Found',
-    303: 'See Other',
-    304: 'Not Modified',
-    305: 'Use Proxy',
-    306: '(Unused)',
-    307: 'Temporary Redirect',
-
-    400: 'Bad Request',
-    401: 'Unauthorized',
-    402: 'Payment Required',
-    403: 'Forbidden',
-    404: 'Not Found',
-    405: 'Method Not Allowed',
-    406: 'Not Acceptable',
-    407: 'Proxy Authentication Required',
-    408: 'Request Timeout',
-    409: 'Conflict',
-    410: 'Gone',
-    411: 'Length Required',
-    412: 'Precondition Failed',
-    413: 'Request Entity Too Large',
-    414: 'Request-URI Too Long',
-    415: 'Unsupported Media Type',
-    416: 'Requested Range Not Satisfiable',
-    417: 'Expectation Failed',
-
-    500: 'Internal Server Error',
-    501: 'Not Implemented',
-    502: 'Bad Gateway',
-    503: 'Service Unavailable',
-    504: 'Gateway Timeout',
-    505: 'HTTP Version Not Supported',
-}
-
+import http
+from forward import forwardRequest, forwardResponse
 
 class Cache(db.Model):
 	headers = db.ListProperty(str)
@@ -94,11 +46,31 @@ class CacheExpired(Exception):
 
 class Service(object):
 
+	"""Cache service
+
+	This service implements the content delivering caching mechanism.
+	All requests handled by this service produces cache manipulation
+	on the Google Datastore (with a Memcache top layer).
+
+	- origin: Set the origin url
+	- forceTTL: Does not honor Cache-Control value, replacing cache TTL by this value
+	- maxTTL: When the Cache-Control value is honored (forceTTL not set), the cache TTL
+	value cannot be greater than this value (otherwise, it is overriden).
+	- ignoreQueryString: Tell if the trailing HTTP query string is not taken into account
+	to generate the cache object key in Datastore. In other terms, if this value is set
+	to True, /url/path/obj.js?v=42 and /url/path/obj.js referer to the same object.
+	- forwardPost: If it is True, POST requests will be forwarded, instead of being redirected
+	- allowFlushFrom: Specify client IP which are allowed to make DELETE requests to flush
+	cache object explicitly.
+	"""
+
 	origin = None
 	forceTTL = None
 	maxTTL = None
 	ignoreQueryString = False
 	forwardPost = True
+	# Set your client IP address to authorize cache entry deletion
+	allowFlushFrom = ['127.0.0.1']
 
 	# These headers won't be forwarded
 	headerBlacklist = [
@@ -137,12 +109,14 @@ class Service(object):
 		url = self.origin + request
 		if self.forwardPost is False:
 			raise web.SeeOther(request, absolute=True)
-		self.forwardRequest(url, method='POST')
+		response = forward.forwardRequest(url, method=web.ctx.method)
+		forward.forwardResponse(response)
+
+	def PUT(self, request):
+		self.POST(request)
 
 	def DELETE(self, request):
-		# Set your client IP address to authorize cache entry deletion
-		allowedIP = ['127.0.0.1']
-		if not web.ctx.env['REMOTE_ADDR'] in allowedIP:
+		if not web.ctx.env['REMOTE_ADDR'] in self.allowFlushFrom:
 			raise web.Forbidden()
 		if request.split('/').pop() == '__ALL__':
 			if 'memcache' in  web.ctx.query:
@@ -213,10 +187,10 @@ class Service(object):
 	def writeCache(self, request, cache = None):
 		logging.debug('writeCache')
 		url = self.origin + request
-		headers = {'User-Agent' : 'CirruxCache 0.1 / shad ;'}
+		headers = {'User-Agent' : http.userAgent}
+		# Bypass google cache
+		headers['Cache-Control'] = 'no-cache, max-age=0, must-revalidate'
 		if cache:
-			# Bypass google cache
-			headers['Cache-Control'] = 'no-cache, max-age=0'
 			headers['If-Modified-Since'] = web.httpdate(cache.lastModified)
 		try:
 			response = urlfetch.Fetch(url=url, headers=headers)
@@ -281,19 +255,3 @@ class Service(object):
 		if not self.maxTTL is None and maxAge > self.maxTTL:
 			maxAge = self.maxTTL
 		return maxAge
-
-	def forwardResponse(self, response):
-		status = '%s %s' % (response.status_code, httpResponses[response.status_code])
-		raise web.HTTPError(status=status, headers=response.headers, data=response.content)
-
-	def forwardRequest(self, url, method='GET'):
-		headers = {}
-		for key, value in web.ctx.environ.iteritems():
-			if not key.startswith('HTTP_'):
-				continue
-			key = '-'.join([k.capitalize() for k in key[5:].split('_')])
-			headers[key] = value
-		headers['Host'] = self.origin[7:]
-		headers['User-Agent'] = 'CirruxCache 0.1 / shad (http://cirrux.org/cache/) ;'
-		response = urlfetch.Fetch(url=url, method=method, headers=headers)
-		self.forwardResponse(response)
