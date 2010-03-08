@@ -29,9 +29,10 @@ __author__ = [
 ]
 __license__ = 'GNU Public License version 2'
 
-import sys
-sys.path.append('lib')
-sys.path.append('contrib')
+import sys, os
+root = os.path.dirname(os.environ['PATH_TRANSLATED'])
+sys.path.append(os.path.join(root, 'lib'))
+sys.path.append(os.path.join(root, 'contrib'))
 
 import logging
 import web
@@ -62,7 +63,8 @@ class Static(cache.Service):
 
 class Www(cache.Service):
 	origin = 'http://www.mydomain.tld'
-	forceTTL = 3600 # 1 hour
+	allowFlushFrom = ['127.0.0.1']
+	forceTTL = 360 # 1 hour
 	ignoreQueryString = True
 	forwardPost = False
 

@@ -26,7 +26,7 @@ from google.appengine.api import memcache
 from google.appengine.api import urlfetch, urlfetch_errors
 
 import http
-from forward import forwardRequest, forwardResponse
+from lib import forward
 
 class Cache(db.Model):
 	headers = db.ListProperty(str)
@@ -119,7 +119,7 @@ class Service(object):
 		if not web.ctx.env['REMOTE_ADDR'] in self.allowFlushFrom:
 			raise web.Forbidden()
 		if request.split('/').pop() == '__ALL__':
-			if 'memcache' in  web.ctx.query:
+			if 'memcache' in web.ctx.query:
 				memcache.flush_all()
 				return 'memcache flushed.\n'
 			# entity selection is limited by 1000 but often timeout
@@ -210,12 +210,12 @@ class Service(object):
 			if cache:
 				cache.delete()
 				memcache.delete(request)
-			self.forwardResponse(response)
+			forward.forwardResponse(response)
 		elif cache and response.status_code >= 500:
 			logging.warning('500, serving cache copy')
 			return cache
 		elif response.status_code != 200:
-			self.forwardResponse(response)
+			forward.forwardResponse(response)
 		cache = self.cache(key_name=request)
 		cache.data = db.Blob(response.content)
 		cache.maxAge = self.getMaxAge(response.headers)
