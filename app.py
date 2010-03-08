@@ -64,7 +64,7 @@ class Static(cache.Service):
 class Www(cache.Service):
 	origin = 'http://www.mydomain.tld'
 	allowFlushFrom = ['127.0.0.1']
-	forceTTL = 360 # 1 hour
+	forceTTL = 3600 # 1 hour
 	ignoreQueryString = True
 	forwardPost = False
 
