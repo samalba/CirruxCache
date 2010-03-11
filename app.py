@@ -58,8 +58,7 @@ urls['default'] = (
 # You can define and configure your Point Of Presence
 
 class Static(cache.Service):
-	#origin = 'http://static.mydomain.tld'
-	origin = 'http://test.zoomorama.com:8080'
+	origin = 'http://static.mydomain.tld'
 	maxTTL = 2592000 # 1 month
 	ignoreQueryString = True
 
@@ -69,9 +68,6 @@ class Www(cache.Service):
 	forceTTL = 3600 # 1 hour
 	ignoreQueryString = True
 	forwardPost = False
-
-class Test(forward.Service):
-	origin = 'http://test.zoomorama.com:8081'
 
 # !POP
 
