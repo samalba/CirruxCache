@@ -47,7 +47,6 @@ urls = {}
 
 urls['default'] = (
 #		'(/debug/.*)', 'Debug',
-		'/test(/.*)', 'Test',
 		'(/data/.*)', 'Static',
 		'/www(/.*)', 'Www',
 		'/_cron/(.*)', 'Cron',
