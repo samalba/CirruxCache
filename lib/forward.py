@@ -19,6 +19,8 @@
 import web
 import http
 
+from google.appengine.api import urlfetch, urlfetch_errors
+
 class Service(http.Base):
 
 	"""Forward service
@@ -31,10 +33,13 @@ class Service(http.Base):
 
 	origin = None
 
-	def __getattr__(self, attr):
+	def __getattribute__(self, attr):
+		# "this" points to the child class
+		# without calling "__getattribute__"
+		this = type(self)
 		def _impl(request):
 			request += web.ctx.query
-			response = forwardRequest(self.origin + request, method=web.ctx.method)
+			response = forwardRequest(this.origin + request, method=web.ctx.method)
 			forwardResponse(response)
 		return _impl
 
@@ -51,4 +56,9 @@ def forwardRequest(url, method='GET'):
 		headers[key] = value
 	#headers['Host'] = self.origin[7:]
 	headers['User-Agent'] = http.userAgent
-	return urlfetch.Fetch(url=url, method=method, headers=headers)
+	try:
+		return urlfetch.Fetch(url=url, method=method, headers=headers)
+	except urlfetch_errors.Error:
+		# We got an error, redirect to the origin
+		# to let client dealing errors with it.
+		raise web.SeeOther(url)

@@ -16,6 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
+import web
 import http
 
 class Service(http.Base):
@@ -32,10 +33,13 @@ class Service(http.Base):
 	origin = None
 	code = 301
 
-	def __getattr__(self, attr):
+	def __getattribute__(self, attr):
+		# "this" points to the child class
+		# without calling "__getattribute__"
+		this = type(self)
 		def _impl(request):
 			request += web.ctx.query
-			web.header('Location', self.origin + request)
-			status = '%s %s' % (self.code, http.httpResponses[self.code])
+			web.header('Location', this.origin + request)
+			status = '%s %s' % (this.code, http.httpResponses[this.code])
 			raise web.HTTPError(status=status)
 		return _impl

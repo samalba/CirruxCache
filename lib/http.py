@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-userAgent = 'CirruxCache 0.2 / shad (http://code.google.com/p/cirruxcache/) ;'
+userAgent = 'CirruxCache trunk / shad (http://code.google.com/p/cirruxcache/) ;'
 
 # Copy from httplib
 httpResponses = {
@@ -70,17 +70,17 @@ httpResponses = {
 # An empty base class to tell webpy that we implement all HTTP methods
 class Base(object):
 
-	def GET(self):
+	def GET(self, *args):
 		pass
 
-	def HEAD(self):
+	def HEAD(self, *args):
 		pass
 
-	def POST(self):
+	def POST(self, *args):
 		pass
 
-	def PUT(self):
+	def PUT(self, *args):
 		pass
 
-	def DELETE(self):
+	def DELETE(self, *args):
 		pass

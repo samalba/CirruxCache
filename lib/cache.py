@@ -23,7 +23,7 @@ import datetime
 import web
 from google.appengine.ext import db
 from google.appengine.api import memcache
-from google.appengine.api import urlfetch, urlfetch_errors
+from google.appengine.api import urlfetch
 
 import http
 from lib import forward
