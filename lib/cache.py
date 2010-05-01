@@ -21,6 +21,7 @@ import time
 import datetime
 
 import web
+from google.appengine import runtime
 from google.appengine.ext import db
 from google.appengine.api import memcache
 from google.appengine.api import urlfetch
@@ -94,6 +95,8 @@ class Service(object):
 			cache = self.readCache(request)
 			if cache is None:
 				cache = self.writeCache(request)
+		except runtime.DeadlineExceededError:
+			raise web.SeeOther(self.origin + request, absolute=True)
 		except CacheExpired, cache:
 			cache = self.writeCache(request, cache())
 		if not web.modified(cache.lastModified):
@@ -108,7 +111,7 @@ class Service(object):
 			request += web.ctx.query
 		url = self.origin + request
 		if self.forwardPost is False:
-			raise web.SeeOther(request, absolute=True)
+			raise web.SeeOther(url, absolute=True)
 		response = forward.forwardRequest(url, method=web.ctx.method)
 		forward.forwardResponse(response)
 
