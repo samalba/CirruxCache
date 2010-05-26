@@ -47,7 +47,7 @@ from lib import cache, redirect, forward
 urls = {}
 
 urls['default'] = (
-#		'(/debug/.*)', 'Debug',
+		'(/debug/.*)', 'Debug',
 		'/_admin/(.*)', 'Admin',
 		'(/data/.*)', 'Static',
 		'/www(/.*)', 'Www',
@@ -64,7 +64,7 @@ class Static(cache.Service):
 	ignoreQueryString = True
 
 class Www(cache.Service):
-	origin = 'http://www.mydomain.tld'
+	origin = 'http://www.google.fr'
 	allowFlushFrom = ['127.0.0.1']
 	forceTTL = 3600 # 1 hour
 	ignoreQueryString = True

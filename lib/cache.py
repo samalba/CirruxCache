@@ -119,7 +119,7 @@ class Service(object):
 		self.POST(request)
 
 	def DELETE(self, request):
-		if not web.ctx.env['REMOTE_ADDR'] in self.allowFlushFrom:
+		if not web.ctx.env['REMOTE_ADDR'] in self.allowFlushFrom and not users.is_current_user_admin():
 			raise web.Forbidden()
 		if request.split('/').pop() == '__ALL__':
 			if 'memcache' in web.ctx.query:

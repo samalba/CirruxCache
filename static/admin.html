@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+	<title>CirruxCache Admin</title>
+	<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+
+	<style type="text/css">
+		p {
+		}
+		textarea {
+			width: 80%;
+		}
+		h1 {
+			color: #777777;
+			padding: 15px;
+		}
+		h1, #tabs, #footer {
+			margin: auto;
+			width: 60%;
+			min-width: 600px;
+		}
+		#flush>span:first-child {
+			display: block;
+			text-align: center;
+			color: #777777;
+			padding-bottom: 5px;
+		}
+		#flush>textarea {
+			height: 150px;
+			width: 85%;
+			font-size: 14px;
+		}
+		#flush>input[type=submit] {
+			float: right;
+			width: 10%;
+		}
+		#footer {
+			padding-top: 15px;
+			text-align: center;
+			font-size: 12px;
+		}
+	</style>
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$("#flush > span").hide();
+			$("#tabs").tabs();
+		});
+
+		var flush = function() {
+			var data = $("#flush > textarea")[0].value;
+			$.post(document.location.pathname + "flush", data,
+					function(data){
+					var result = $("#flush > span");
+					result.html(data);
+					result.slideDown("fast");
+					setTimeout(function() { result.slideUp("fast") }, 3000);
+					});
+		}
+	</script>
+</head>
+<body>
+	<h1>CirruxCache admin</h1>
+	<div id="tabs">
+		<ul>
+			<li><a href="#flush"><span>Flush</span></a></li>
+			<li><a href="#stats"><span>Stats</span></a></li>
+		</ul>
+		<div id="flush">
+			<span></span>
+			<textarea></textarea>
+			<input type="submit" name="flush" value="flush" onclick="javascript:flush();" />
+		</div>
+		<div id="stats">
+			test
+		</div>
+	</div>
+	<div id="footer">Powered by <a href="http://code.google.com/p/cirruxcache/">CirruxCache</a></div>
+</body>
+</html>
