@@ -39,6 +39,7 @@ import web
 
 from services.cron import Cron
 from services.admin import Admin
+from services.store import Store
 from services.debug import Debug
 from lib import cache, redirect, forward
 
@@ -49,6 +50,7 @@ urls = {}
 urls['default'] = (
 		'(/debug/.*)', 'Debug',
 		'/_admin/(.*)', 'Admin',
+		'/_store/(.*)', 'Store',
 		'(/data/.*)', 'Static',
 		'/www(/.*)', 'Www',
 		'/_cron/(.*)', 'Cron',

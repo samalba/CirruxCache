@@ -19,31 +19,38 @@
 import logging
 
 import web
-from google.appengine.api import users
+from google.appengine.ext import blobstore
+from google.appengine.ext.webapp import blobstore_handlers
+from google.appengine.ext import db
 
-class Admin(object):
 
-	def POST(self, request):
-		return self.__request(request)
+class _Store(db.Model):
+	blobKey = db.StringProperty()
+
+class Store(object):
 
 	def GET(self, request):
-		return self.__request(request)
-
-	def __request(self, request):
-		if not users.is_current_user_admin():
-			raise web.SeeOther(users.create_login_url(web.ctx.path))
-		if not request:
-			try:
-				f = file('static/admin.html')
-				return f.read()
-			finally:
-				f.close()
-		func = 'cmd' + request.capitalize()
-		if hasattr(self, func):
-			attr = getattr(self, func)
+		req = web.ctx.path.split('/')
+		cmd = 'cmd' + req.pop().capitalize()
+		if hasattr(self, cmd):
+			attr = getattr(self, cmd)
 			if callable(attr):
-				return attr()
-		raise web.NotFound()
+				return attr('/'.join(req))
+		return self.serve(web.ctx.path)
 
-	def cmdStore(self):
-		return 'ok'
+	def POST(self, request):
+		data = web.data()
+		s = data.find('blob-key=') + 10
+		bkey = data[s: data.find('"', s)]
+		logging.warning('--%s--' % web.data())
+		logging.warning('--%s--' % bkey)
+		raise web.SeeOther(request)
+
+	def serve(self, request):
+		logging.warning('--%s--' % blobstore.BlobInfo.get(request.split('/').pop()))
+		return 'OK'
+
+	def cmdNew(self, request):
+		url = blobstore.create_upload_url(request).split('/')[3:]
+		url = '/' + '/'.join(url)
+		return '%s' % url

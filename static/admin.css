@@ -1,0 +1,48 @@
+/*
+ * This file is part of the CirruxCache project
+ * http://code.google.com/p/cirruxcache/
+ */
+
+textarea {
+	width: 80%;
+}
+
+h1 {
+	color: #777777;
+	padding: 15px;
+}
+
+h1, #tabs, #footer {
+	margin: auto;
+	width: 60%;
+	min-width: 600px;
+}
+
+#flush>span:first-child, #store>span:first-child {
+	display: block;
+	text-align: center;
+	color: #777777;
+	padding-bottom: 5px;
+}
+
+#flush>textarea {
+	height: 150px;
+	width: 85%;
+	font-size: 14px;
+}
+
+#flush>input[type=button] {
+	float: right;
+	width: 10%;
+}
+
+#store>fieldset>input[type=text] {
+	display: inline;
+	width: 60%;
+}
+
+#footer {
+	padding-top: 15px;
+	text-align: center;
+	font-size: 12px;
+}
