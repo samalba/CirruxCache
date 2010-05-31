@@ -25,6 +25,7 @@ from google.appengine import runtime
 from google.appengine.ext import db
 from google.appengine.api import memcache
 from google.appengine.api import urlfetch
+from google.appengine.api import users
 
 import http
 from lib import forward

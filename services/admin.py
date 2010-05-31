@@ -20,6 +20,8 @@ import logging
 
 import web
 from google.appengine.api import users
+from google.appengine.ext import blobstore
+from google.appengine.ext.db import stats
 
 from services.store import _StoreMeta
 
@@ -47,8 +49,34 @@ class Admin(object):
 				return attr()
 		raise web.NotFound()
 
+	def formatSize(self, size):
+		if not isinstance(size, int):
+			return 'N/A'
+		suffixes = ['Bytes', 'KBytes', 'MBytes', 'GBytes']
+		for s in suffixes:
+			if size < 1024:
+				return '%s %s' % (size, s)
+			size /= 1024
+
 	def cmdStore(self):
 		data = ''
 		for meta in _StoreMeta.all():
-			data += '<li>%s</li>\n' % 'test'
+			name = meta.key().name()
+			info = blobstore.BlobInfo.get(meta.blobKey)
+			size = self.formatSize(info.size)
+			data += '<li><input type="button" value="x" onclick="javascript:delStore(\'%s\');" />%s' % (name, name)
+			data += ' <span>(%s, %s, %s)</span></li>\n' % (info.filename, info.content_type, size)
 		return data
+
+	def cmdStats(self):
+		all = stats.GlobalStat.all().get()
+		if not all:
+			all = EmptyStats()
+		data = '<li>Total storage size: %s</li>\n' % self.formatSize(all.bytes)
+		data += '<li>Total entities stored: %s</li>\n' % all.count
+		data += '<li>Last statistics update: %s\n' % all.timestamp
+		return data
+
+class EmptyStats(object):
+	def __getattr__(self, name):
+		return 'N/A'

@@ -66,7 +66,7 @@ class Static(cache.Service):
 	ignoreQueryString = True
 
 class Www(cache.Service):
-	origin = 'http://www.google.fr'
+	origin = 'http://www.mydomain.tld'
 	allowFlushFrom = ['127.0.0.1']
 	forceTTL = 3600 # 1 hour
 	ignoreQueryString = True

@@ -6,15 +6,25 @@
 $(document).ready(function() {
 		$("#flush > span").hide();
 		var t = $("#tabs");
+		var tabCallback = [null, fetchStore, fetchStats];
 		t.tabs({ show: function(event, ui) {
-			var i = t.tabs('option', 'selected');
-			if (i == 1)
-				initStore();
+			var cb = tabCallback[t.tabs("option", "selected")];
+			if (cb)
+				cb();
+			$("div > span:first-child").hide();
 			}});
 		$("#flush > input").bind("click", flush);
 		$("#store > fieldset > form").bind("change", newStore);
 		$("#store > fieldset > input[type=text]").bind("blur", checkStorePath);
+		$("#stats > input").bind("click", function() { fetchStore(true) });
 		});
+
+var showMessage = function(target, message) {
+	var t = $(target);
+	t.html(message);
+	t.slideDown("fast");
+	setTimeout(function() { t.slideUp("fast") }, 3000);
+}
 
 var flush = function() {
 	var data = $("#flush > textarea")[0].value.split("\n");
@@ -25,18 +35,21 @@ var flush = function() {
 			req = "/" + req;
 		$.ajax({type: "DELETE", url: req, dataType: "text"});
 	}
-	var result = $("#flush > span");
-	result.html(data.length + " flush request" + (data.length > 1 ? "s" : "") + " sent");
-	result.slideDown("fast");
-	setTimeout(function() { result.slideUp("fast") }, 3000);
+	var message = data.length + " flush request" + (data.length > 1 ? "s" : "") + " sent";
+	showMessage("#flush > span", message);
 }
 
-var initStore = function() {
+var fetchStore = function(force) {
+	var target = $("#store > ul");
+	if (!force && target.html())
+		return;
 	$.ajax({
 		url: document.location.pathname + "store",
 		dataType: "text",
 		success: function(data, textStatus, XMLHttpRequest) {
-			$("#store > ul").html(data);
+			if (!data)
+				data = " ";
+			target.html(data);
 			}
 		});
 }
@@ -62,18 +75,48 @@ var newStore = function() {
 		dataType: "text",
 		success: addStore,
 		error: function(XMLHttpRequest, textStatus, errorThrown) {
-			var result = $("#store > span");
-			result.html(textStatus + " (" + XMLHttpRequest.status + " " + XMLHttpRequest.statusText + ")");
-			result.slideDown("fast");
-			setTimeout(function() { result.slideUp("fast") }, 3000);
+			var message = textStatus + " (" + XMLHttpRequest.status + " " + XMLHttpRequest.statusText + ")";
+			showMessage("#store > span", message);
 			}
 		});
 }
 
 var addStore = function(data, textStatus, XMLHttpRequest) {
-	$("#store > fieldset > form").ajaxSubmit({
-			url: data,
-			dataType: "text",
-			success: initStore
-			});
+	var form = $("#store > fieldset > form");
+	form.ajaxSubmit({
+		url: data,
+		dataType: "text",
+		success: function() {
+			fetchStore(true);
+			form[0].reset();
+			showMessage("#store > span", "Upload successful");
+			}
+		});
+}
+
+var delStore = function(url) {
+	var c = confirm("Are you sure to delete this file?");
+	if (!c)
+		return;
+	$.ajax({
+		type: "GET",
+		url: url + "/delete",
+		dataType: "text",
+		complete: function() { fetchStore(true); }
+	});
+}
+
+var fetchStats = function(force) {
+	var target = $("#stats > ul");
+	if (!force && target.html())
+		return;
+	$.ajax({
+		url: document.location.pathname + "stats",
+		dataType: "text",
+		success: function(data, textStatus, XMLHttpRequest) {
+			if (!data)
+				data = " ";
+			target.html(data);
+			}
+		});
 }

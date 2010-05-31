@@ -36,9 +36,40 @@ h1, #tabs, #footer {
 	width: 10%;
 }
 
+#flush>p:last-child {
+	margin: 0px;
+	font-size: 12px;
+	font-style: italic;
+}
+
+#store>fieldset, #store>ul, #stats>ul {
+	font-size: 14px;
+}
+
+#store>fieldset>legend, #store>ul {
+	font-weight: bold;
+}
+
+#store>ul>li>span {
+	font-weight: normal;
+}
+
 #store>fieldset>input[type=text] {
 	display: inline;
 	width: 60%;
+}
+
+#store>ul {
+	list-style-type: none;
+}
+
+#store>ul>li>input[type=button] {
+	border-width: 0px;
+	margin-right: 10px;
+}
+
+#stats>input[type=button] {
+	float: right;
 }
 
 #footer {
