@@ -21,6 +21,8 @@ import logging
 import web
 from google.appengine.api import users
 
+from services.store import _StoreMeta
+
 class Admin(object):
 
 	def POST(self, request):
@@ -46,4 +48,7 @@ class Admin(object):
 		raise web.NotFound()
 
 	def cmdStore(self):
-		return 'ok'
+		data = ''
+		for meta in _StoreMeta.all():
+			data += '<li>%s</li>\n' % 'test'
+		return data

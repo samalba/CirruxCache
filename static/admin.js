@@ -32,7 +32,13 @@ var flush = function() {
 }
 
 var initStore = function() {
-
+	$.ajax({
+		url: document.location.pathname + "store",
+		dataType: "text",
+		success: function(data, textStatus, XMLHttpRequest) {
+			$("#store > ul").html(data);
+			}
+		});
 }
 
 var checkStorePath = function() {
@@ -40,10 +46,14 @@ var checkStorePath = function() {
 	if (url.value[url.value.length - 1] == "/" || url.value[0] != "/") {
 		alert("Bad path syntax");
 		url.focus();
+		return false;
 	}
+	return true;
 }
 
 var newStore = function() {
+	if (!checkStorePath())
+		return false;
 	var url = $("#store > fieldset > input[type=text]")[0].value;
 	url += "/new";
 	$.ajax({
@@ -56,12 +66,11 @@ var newStore = function() {
 			result.html(textStatus + " (" + XMLHttpRequest.status + " " + XMLHttpRequest.statusText + ")");
 			result.slideDown("fast");
 			setTimeout(function() { result.slideUp("fast") }, 3000);
-		}
+			}
 		});
 }
 
 var addStore = function(data, textStatus, XMLHttpRequest) {
-	alert('good');
 	$("#store > fieldset > form").ajaxSubmit({
 			url: data,
 			dataType: "text",

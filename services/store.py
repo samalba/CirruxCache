@@ -24,7 +24,7 @@ from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.ext import db
 
 
-class _Store(db.Model):
+class _StoreMeta(db.Model):
 	blobKey = db.StringProperty()
 
 class Store(object):
@@ -39,16 +39,26 @@ class Store(object):
 		return self.serve(web.ctx.path)
 
 	def POST(self, request):
+		request = web.ctx.path
 		data = web.data()
 		s = data.find('blob-key=') + 10
-		bkey = data[s: data.find('"', s)]
-		logging.warning('--%s--' % web.data())
-		logging.warning('--%s--' % bkey)
-		raise web.SeeOther(request)
+		meta = _StoreMeta.get_by_key_name(request)
+		if meta:
+			# Delete the existing blob
+			blobstore.delete(meta.blobKey)
+		meta = _StoreMeta(key_name=request)
+		meta.blobKey = data[s: data.find('"', s)]
+		logging.warning('BlobKey = %s' % meta.blobKey)
+		meta.put()
+		# This redirection is empty and useless,
+		# required from the appengine SDK...
+		raise web.HTTPError(status='302 Found')
 
 	def serve(self, request):
-		logging.warning('--%s--' % blobstore.BlobInfo.get(request.split('/').pop()))
-		return 'OK'
+		meta = _StoreMeta.get_by_key_name(request)
+		if not meta:
+			raise web.NotFound()
+		print 'X-AppEngine-BlobKey: %s' % meta.blobKey
 
 	def cmdNew(self, request):
 		url = blobstore.create_upload_url(request).split('/')[3:]
