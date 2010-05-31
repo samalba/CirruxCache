@@ -50,8 +50,6 @@ class Admin(object):
 		raise web.NotFound()
 
 	def formatSize(self, size):
-		if not isinstance(size, int):
-			return 'N/A'
 		suffixes = ['Bytes', 'KBytes', 'MBytes', 'GBytes']
 		for s in suffixes:
 			if size < 1024:
@@ -71,12 +69,8 @@ class Admin(object):
 	def cmdStats(self):
 		all = stats.GlobalStat.all().get()
 		if not all:
-			all = EmptyStats()
+			return ''
 		data = '<li>Total storage size: %s</li>\n' % self.formatSize(all.bytes)
 		data += '<li>Total entities stored: %s</li>\n' % all.count
 		data += '<li>Last statistics update: %s\n' % all.timestamp
 		return data
-
-class EmptyStats(object):
-	def __getattr__(self, name):
-		return 'N/A'

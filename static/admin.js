@@ -16,7 +16,7 @@ $(document).ready(function() {
 		$("#flush > input").bind("click", flush);
 		$("#store > fieldset > form").bind("change", newStore);
 		$("#store > fieldset > input[type=text]").bind("blur", checkStorePath);
-		$("#stats > input").bind("click", function() { fetchStore(true) });
+		$("#stats > input").bind("click", function() { fetchStats(true) });
 		});
 
 var showMessage = function(target, message) {
