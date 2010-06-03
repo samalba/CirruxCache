@@ -252,10 +252,12 @@ class Service(object):
 		if not self.forceTTL is None:
 			maxAge = self.forceTTL
 		elif 'cache-control' in headers:
-			header = headers['cache-control']
-			n = header.find('max-age=')
-			if n != -1:
-				maxAge = int(header[n + 8:])
+			header = headers['cache-control'].split(',')
+			for h in header:
+				n = h.find('max-age=')
+				if n != -1:
+					maxAge = int(h[n + 8:])
+					break
 		if not self.maxTTL is None and maxAge > self.maxTTL:
 			maxAge = self.maxTTL
 		return maxAge
