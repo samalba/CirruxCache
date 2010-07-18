@@ -19,6 +19,7 @@
 import logging
 import time
 import datetime
+import re
 
 import web
 from google.appengine import runtime
@@ -73,6 +74,7 @@ class Service(object):
 	forwardPost = True
 	# Set your client IP address to authorize cache entry deletion
 	allowFlushFrom = ['127.0.0.1']
+	prefetch = ['text/html']
 
 	# These headers won't be forwarded
 	headerBlacklist = [
@@ -222,6 +224,8 @@ class Service(object):
 			forward.forwardResponse(response)
 		cache = self.cache(key_name=request)
 		cache.data = db.Blob(response.content)
+		if self.prefetch:
+			self.prefetchContent(response)
 		cache.maxAge = self.getMaxAge(response.headers)
 		cache.lastRefresh = datetime.datetime.utcnow()
 		if not 'last-modified' in response.headers:
@@ -261,3 +265,24 @@ class Service(object):
 		if not self.maxTTL is None and maxAge > self.maxTTL:
 			maxAge = self.maxTTL
 		return maxAge
+
+	def prefetchContent(self, response):
+		if not 'content-type' in response.headers:
+			return
+		mimeTypes = response.headers['content-type'].replace(' ', '').split(',')
+		flag = False
+		for mTypes in self.prefetch:
+			if mTypes in mimeTypes:
+				flag = True
+				break
+		if not flag:
+			return
+		data = response.content
+		rpc = urlfetch.create_rpc()
+		for e in re.finditer('(?:href|src)="([^"]+)"', data):
+			url = e.group(1)
+			if url[:8].find('://') < 0:
+				if not url.startswith('/'):
+					url = '/' + url
+				url = web.home() + url
+			urlfetch.make_fetch_call(rpc, url)
