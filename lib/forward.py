@@ -54,10 +54,10 @@ def forwardRequest(url, method='GET'):
 			continue
 		key = '-'.join([k.capitalize() for k in key[5:].split('_')])
 		headers[key] = value
-	#headers['Host'] = self.origin[7:]
 	headers['User-Agent'] = http.userAgent
+	payload = web.data() or None
 	try:
-		return urlfetch.Fetch(url=url, method=method, headers=headers)
+		return urlfetch.Fetch(url=url, method=method, headers=headersi, payload=payload)
 	except urlfetch_errors.Error:
 		# We got an error, redirect to the origin
 		# to let client dealing errors with it.
