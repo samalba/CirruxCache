@@ -57,7 +57,7 @@ def forwardRequest(url, method='GET'):
 	headers['User-Agent'] = http.userAgent
 	payload = web.data() or None
 	try:
-		return urlfetch.Fetch(url=url, method=method, headers=headersi, payload=payload)
+		return urlfetch.Fetch(url=url, method=method, headers=headers, payload=payload)
 	except urlfetch_errors.Error:
 		# We got an error, redirect to the origin
 		# to let client dealing errors with it.
