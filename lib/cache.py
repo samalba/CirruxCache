@@ -197,7 +197,7 @@ class Service(object):
 		headers = {'User-Agent' : http.userAgent}
 		# Bypass google cache
 		headers['Cache-Control'] = 'no-cache, max-age=0, must-revalidate'
-		if not disableIfModifiedSince and cache:
+		if not self.disableIfModifiedSince and cache:
 			headers['If-Modified-Since'] = web.httpdate(cache.lastModified)
 		try:
 			response = urlfetch.Fetch(url=url, headers=headers)
