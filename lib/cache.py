@@ -74,7 +74,8 @@ class Service(object):
 	forwardPost = True
 	# Set your client IP address to authorize cache entry deletion
 	allowFlushFrom = ['127.0.0.1']
-	prefetch = ['text/html']
+	prefetch = []
+	disableIfModifiedSince = False
 
 	# These headers won't be forwarded
 	headerBlacklist = [
@@ -196,7 +197,7 @@ class Service(object):
 		headers = {'User-Agent' : http.userAgent}
 		# Bypass google cache
 		headers['Cache-Control'] = 'no-cache, max-age=0, must-revalidate'
-		if cache:
+		if not disableIfModifiedSince and cache:
 			headers['If-Modified-Since'] = web.httpdate(cache.lastModified)
 		try:
 			response = urlfetch.Fetch(url=url, headers=headers)
