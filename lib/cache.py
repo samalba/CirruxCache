@@ -285,5 +285,5 @@ class Service(object):
 			if url[:8].find('://') < 0:
 				if not url.startswith('/'):
 					url = '/' + url
-				url = web.home() + url
+				url = web.ctx.home + url
 			urlfetch.make_fetch_call(rpc, url)
