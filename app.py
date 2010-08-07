@@ -37,53 +37,12 @@ sys.path.append(os.path.join(root, 'contrib'))
 import logging
 import web
 
+import config
 from services.cron import Cron
 from services.admin import Admin
 from services.store import Store
 from services.debug import Debug
-from lib import cache, redirect, forward
 
-
-# URL mapping
-urls = {}
-
-urls['default'] = (
-		'(/debug/.*)', 'Debug',
-		'/_admin/(.*)', 'Admin',
-		'/_store/(.*)', 'Store',
-		'(/data/.*)', 'Static',
-		'/www(/.*)', 'Www',
-		'/_cron/(.*)', 'Cron',
-		'/(.*)', 'Root'
-		)
-
-# POP definition
-# You can define and configure your Point Of Presence
-
-class Static(cache.Service):
-	origin = 'http://static.mydomain.tld'
-	maxTTL = 2592000 # 1 month
-	ignoreQueryString = True
-
-class Www(cache.Service):
-	origin = 'http://www.mydomain.tld'
-	allowFlushFrom = ['127.0.0.1']
-	forceTTL = 3600 # 1 hour
-	ignoreQueryString = True
-	forwardPost = False
-
-# !POP
-
-# Dynamic configuration
-# disabled for performance issue
-#def initServices(urls):
-#	cfg = config.Config()
-#	for service, meta in cfg.all():
-#		if service[0] != '_':
-#			continue
-#		globals()[service] = type(service, (Service,), meta)
-#		urls = ('(%s/.*)' % meta['mount'], service) + urls
-#	return urls
 
 class Root(object):
 
@@ -97,21 +56,22 @@ class Root(object):
 class VhostMapper(object):
 
 	def __iter__(self):
-		url = ('/(.*)', 'Root')
+		base = (
+				'/_admin/(.*)', 'Admin',
+				'/_store/(.*)', 'Store',
+				'/_cron/(.*)', 'Cron'
+				)
+		url = ()
+		urls = config.urls
 		if 'HTTP_HOST' in web.ctx.environ:
 			vhost = web.ctx.environ['HTTP_HOST']
 			if vhost in urls:
 				url = urls[vhost]
 			elif 'default' in urls:
 				url = urls['default']
-		return iter(url)
+		return iter(base + url + ('/(.*)', 'Root'))
 
 if __name__ == '__main__':
-#	urls = initServices(urls)
-#	debug = ('SERVER_SOFTWARE' in os.environ and os.environ['SERVER_SOFTWARE'] == 'Development/1.0')
-#	if debug:
-#	from services.debug import Debug
-#	urls = ('(/debug/.*)', 'Debug') + urls
 #	logging.getLogger().setLevel(logging.DEBUG)
 	app = web.application(VhostMapper(), globals())
 	app.cgirun()
