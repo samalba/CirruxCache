@@ -46,6 +46,9 @@ class Store(object):
 		return self.cmdDelete(request)
 
 	def POST(self, request):
+		return self.PUT(request)
+
+	def PUT(self, request):
 		request = web.ctx.path
 		data = web.data()
 		s = data.find('blob-key=')
@@ -67,7 +70,6 @@ class Store(object):
 			blobstore.delete(meta.blobKey)
 		meta = _StoreMeta(key_name=request)
 		meta.blobKey = data
-		logging.warning('BlobKey: %s' % meta.blobKey)
 		meta.put()
 		# This redirection is empty and useless,
 		# required from the appengine SDK...
@@ -85,7 +87,11 @@ class Store(object):
 
 	def cmdNew(self, request):
 		self.checkAuth()
-		url = blobstore.create_upload_url(request).split('/')[3:]
+		try:
+			raise
+			url = blobstore.create_upload_url(request).split('/')[3:]
+		except Exception:
+			raise web.HTTPError(status='501 Not Implemented')
 		url = '/' + '/'.join(url)
 		return '%s' % url
 

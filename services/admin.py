@@ -69,7 +69,7 @@ class Admin(object):
 	def cmdStats(self):
 		all = stats.GlobalStat.all().get()
 		if not all:
-			return ''
+			return 'No stats available.'
 		data = '<li>Total storage size: %s</li>\n' % self.formatSize(all.bytes)
 		data += '<li>Total entities stored: %s</li>\n' % all.count
 		data += '<li>Last statistics update: %s\n' % all.timestamp

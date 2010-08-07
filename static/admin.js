@@ -28,15 +28,22 @@ var showMessage = function(target, message) {
 
 var flush = function() {
 	var data = $("#flush > textarea")[0].value.split("\n");
+	var message = "";
+	var j = 0;
 	for (var i = 0; i < data.length; ++i)
 	{
 		var req = jQuery.trim(data[i]);
 		if (req[0] != "/")
 			req = "/" + req;
-		$.ajax({type: "DELETE", url: req, dataType: "text"});
+		$.ajax({type: "DELETE",
+				url: req,
+				dataType: "text",
+				complete: function(XMLHttpRequest, textStatus) {
+					message += ++j + ") " + textStatus + "<br />";
+					if (i == data.length)
+						showMessage("#flush > span", message);
+				}});
 	}
-	var message = data.length + " flush request" + (data.length > 1 ? "s" : "") + " sent";
-	showMessage("#flush > span", message);
 }
 
 var fetchStore = function(force) {
@@ -75,8 +82,7 @@ var newStore = function() {
 		dataType: "text",
 		success: addStore,
 		error: function(XMLHttpRequest, textStatus, errorThrown) {
-			var message = textStatus + " (" + XMLHttpRequest.status + " " + XMLHttpRequest.statusText + ")";
-			showMessage("#store > span", message);
+			showMessage("#store > span", "Error. Is billing mode enabled on this AppEngine account?");
 			}
 		});
 }
@@ -95,7 +101,7 @@ var addStore = function(data, textStatus, XMLHttpRequest) {
 }
 
 var delStore = function(url) {
-	var c = confirm("Are you sure to delete this file?");
+	var c = confirm("Remove this file?");
 	if (!c)
 		return;
 	$.ajax({
