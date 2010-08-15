@@ -149,7 +149,7 @@ class Service(object):
 		cache = self.cache.get_by_key_name(request)
 		if cache:
 			cache.delete()
-		memcache.delete(request)
+		memcache.delete('%s_%s' % (self.name, request))
 		return 'ok\n'
 
 	def memcacheSet(self, *args, **kwargs):
