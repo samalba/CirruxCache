@@ -33,8 +33,6 @@ var flush = function() {
 	for (var i = 0; i < data.length; ++i)
 	{
 		var req = jQuery.trim(data[i]);
-		if (req[0] != "/")
-			req = "/" + req;
 		$.ajax({type: "DELETE",
 				url: req,
 				dataType: "text",
