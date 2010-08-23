@@ -33,3 +33,6 @@ handlers:
 
 - url: /.*
   script: app.py
+
+derived_file_type:
+- python_precompiled
