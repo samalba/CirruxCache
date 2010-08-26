@@ -72,6 +72,27 @@ h1, #tabs, #footer {
 	float: right;
 }
 
+#config fieldset {
+	font-size: 14px;
+}
+
+#config fieldset>legend, #config>fieldset>p {
+	font-weight: bold;
+}
+
+#config>fieldset>input, #config>fieldset>p, #config>fieldset>form, #config>fieldset>form>div {
+	display: inline;
+	margin-left: 20px;
+}
+
+#config>div {
+	display: none;
+}
+
+#config>div>input {
+	float: right;
+}
+
 #footer {
 	padding-top: 15px;
 	text-align: center;

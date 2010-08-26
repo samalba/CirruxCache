@@ -17,6 +17,7 @@ $(document).ready(function() {
 		$("#store > fieldset > form").bind("change", newStore);
 		$("#store > fieldset > input[type=text]").bind("blur", checkStorePath);
 		$("#stats > input").bind("click", function() { fetchStats(true) });
+		$("#config > fieldset > input").bind("click", configNewFile);
 		});
 
 var showMessage = function(target, message) {
@@ -123,4 +124,9 @@ var fetchStats = function(force) {
 			target.html(data);
 			}
 		});
+}
+
+var configNewFile = function() {
+	$("#config > fieldset").slideUp("fast");
+	$("#config > div").slideDown("fast");
 }

@@ -16,6 +16,7 @@
 			<li><a href="#flush"><span>Flush</span></a></li>
 			<li><a href="#store"><span>Store</span></a></li>
 			<li><a href="#stats"><span>Stats</span></a></li>
+			<li><a href="#config"><span>Configuration</span></a></li>
 		</ul>
 		<div id="flush">
 			<span></span>
@@ -37,6 +38,27 @@
 		<div id="stats">
 			<input type="button" value="refresh" />
 			<ul></ul>
+		</div>
+		<div id="config">
+			<span></span>
+			<fieldset>
+				<legend>Configuration file</legend>
+				<input type="button" value="Create new" />
+				<p>OR</p>
+				<form method="post" action="#">
+					<div><input type="file" name="configFile" value="add" /></div>
+				</form>
+			</fieldset>
+			<div>
+				<input type="button" value="Save" />
+				<input type="button" value="Cancel" />
+				<fieldset>
+					<legend>Mapping URL</legend>
+				</fieldset>
+				<fieldset>
+					<legend>Services</legend>
+				</fieldset>
+			</div>
 		</div>
 	</div>
 	<div id="footer">Powered by <a href="http://code.google.com/p/cirruxcache/">CirruxCache</a></div>
