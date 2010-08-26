@@ -88,7 +88,6 @@ class Store(object):
 	def cmdNew(self, request):
 		self.checkAuth()
 		try:
-			raise
 			url = blobstore.create_upload_url(request).split('/')[3:]
 		except Exception:
 			raise web.HTTPError(status='501 Not Implemented')
