@@ -53,10 +53,40 @@
 				<input type="button" value="Save" />
 				<input type="button" value="Cancel" />
 				<fieldset>
-					<legend>Mapping URL</legend>
+					<legend>Mapping URLs</legend>
+					<input type="button" value="+" />
+					<div id="configMapping">
+						<div>
+							<input type="button" value="X" />
+							<input type="text" value="(/url/.*)" />
+							<select><option>&lt;Service Name&gt;</option></select>
+						</div>
+					</div>
 				</fieldset>
 				<fieldset>
 					<legend>Services</legend>
+					<input type="text" />
+					<select>
+						<option value="">&lt;Service Type&gt;</option>
+						<option>cache</option>
+						<option>redirect</option>
+						<option>forward</option>
+					</select>
+					<input type="button" value="+" />
+					<div id="configServices">
+						<div>
+							<input type="button" value="X" />
+							<fieldset>
+								<legend></legend>
+								<input type="button" value="+" />
+								<div>
+									<input type="button" value="X" />
+									<select><option>&lt;Variable&gt;</option></select>
+									<input type="text" value="" />
+								</div>
+							</fieldset>
+						<div>
+					</div>
 				</fieldset>
 			</div>
 		</div>

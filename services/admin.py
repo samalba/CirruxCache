@@ -74,3 +74,15 @@ class Admin(object):
 		data += '<li>Total entities stored: %s</li>\n' % all.count
 		data += '<li>Last statistics update: %s\n' % all.timestamp
 		return data
+
+	def cmdConfigvars(self):
+		from lib import cache, redirect, forward
+		if not web.ctx.env["QUERY_STRING"] in ['cache', 'redirect', 'forward']:
+			raise web.BadRequest()
+		try:
+			service = '%s.Service' % web.ctx.env["QUERY_STRING"]
+			d = eval("dir(%s)" % service);
+			vars = [x for x in dir(cache.Service) if not x[0] == '_' and not callable(getattr(eval(service), x))]
+			return str(vars)
+		except Exception:
+			raise web.BadRequest()

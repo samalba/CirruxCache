@@ -93,6 +93,31 @@ h1, #tabs, #footer {
 	float: right;
 }
 
+#config>div>input+input+fieldset>input {
+	float: right;
+}
+
+#configMapping>div:first-child>input:first-child {
+	visibility: hidden;
+}
+
+#configServices>div:first-child {
+	display: none;
+}
+
+#configServices>div>input {
+	float: left;
+	margin: 10px;
+}
+
+#configServices>div>fieldset>input[type=button] {
+	float: right;
+}
+
+#configServices>div>fieldset>legend+input+div>input[type=button] {
+	visibility: hidden;
+}
+
 #footer {
 	padding-top: 15px;
 	text-align: center;
