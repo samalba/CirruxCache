@@ -82,7 +82,10 @@ class Admin(object):
 		try:
 			service = '%s.Service' % web.ctx.env["QUERY_STRING"]
 			d = eval("dir(%s)" % service);
-			vars = [x for x in dir(cache.Service) if not x[0] == '_' and not callable(getattr(eval(service), x))]
+			vars = [x for x in d if not x[0] == '_' and not callable(getattr(eval(service), x))]
+			# Force browser cache
+			web.header("Cache-Control", "public, max-age=3600");
+			web.header("Age", "0");
 			return str(vars)
 		except Exception:
 			raise web.BadRequest()

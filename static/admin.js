@@ -174,8 +174,20 @@ var configServicesAdd = function() {
 			div.parentNode.removeChild(div);
 			});
 	$("#configServices > div:last-child > fieldset > input[type=button]").bind("click", configServicesVarAdd);
-	$("#configServices > div:last-child > fieldset > div > select").bind("mousedown", function() {
-			//;
+	var select = $("#configServices > div:last-child > fieldset > div > select");
+	select.bind("mousedown", function() {
+			$.ajax({
+				url: document.location.pathname + "configvars?" + type,
+				dataType: "text",
+				async: false,
+				success: function(data, textStatus, XMLHttpRequest) {
+					var a = eval(data);
+					select.html("<option>&lt;Variable&gt;</option>");
+					for (var i in a) {
+						select.append("<option>" + a[i] + "</option>");
+					}
+				}
+			});
 			});
 }
 
