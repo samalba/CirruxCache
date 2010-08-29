@@ -17,6 +17,8 @@
 #
 
 import logging
+import re
+import textwrap
 
 import web
 from google.appengine.api import users
@@ -34,8 +36,8 @@ class Admin(object):
 		return self.__request(request)
 
 	def __request(self, request):
-		if not users.is_current_user_admin():
-			raise web.SeeOther(users.create_login_url(web.ctx.path))
+		#if not users.is_current_user_admin():
+		#	raise web.SeeOther(users.create_login_url(web.ctx.path))
 		if not request:
 			try:
 				f = file('static/admin.html')
@@ -76,9 +78,9 @@ class Admin(object):
 		return data
 
 	def cmdConfigvars(self):
-		from lib import cache, redirect, forward
 		if not web.ctx.env["QUERY_STRING"] in ['cache', 'redirect', 'forward']:
 			raise web.BadRequest()
+		from lib import cache, redirect, forward
 		try:
 			service = '%s.Service' % web.ctx.env["QUERY_STRING"]
 			d = eval("dir(%s)" % service);
@@ -89,3 +91,22 @@ class Admin(object):
 			return str(vars)
 		except Exception:
 			raise web.BadRequest()
+
+	def cmdConfighelp(self):
+		service = web.ctx.env["QUERY_STRING"].split('_')
+		if len(service) != 2:
+			raise web.BadRequest()
+		var = service[1]
+		service = service[0]
+		if not service in ['cache', 'redirect', 'forward']:
+			raise web.BadRequest()
+		from lib import cache, redirect, forward
+		data = eval('%s.Service.__doc__' % service)
+		e = re.search('- %s: ([^-]+)' % var, data, re.MULTILINE)
+		# Force browser cache
+		web.header("Cache-Control", "public, max-age=3600");
+		web.header("Age", "0");
+		if not e:
+			return 'No help available'
+		doc = textwrap.wrap(e.group(1).strip(), 50)
+		return '<br />'.join(doc)

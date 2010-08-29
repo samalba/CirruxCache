@@ -136,8 +136,10 @@ var configNewFile = function() {
 }
 
 var configClose = function() {
-	$("#config > div").slideUp("fast");
-	$("#config > fieldset").slideDown("fast");
+	if (!confirm("All this configuration will be lost!"))
+		return;
+	document.location.href = document.location.pathname + "#config";
+	document.location.reload();
 }
 
 var configMappingAdd = function() {
@@ -182,13 +184,14 @@ var configServicesAdd = function() {
 				async: false,
 				success: function(data, textStatus, XMLHttpRequest) {
 					var a = eval(data);
-					select.html("<option>&lt;Variable&gt;</option>");
+					select.html("<option value=\"\">&lt;Variable&gt;</option>");
 					for (var i in a) {
 						select.append("<option>" + a[i] + "</option>");
 					}
 				}
 			});
 			});
+	configServicesVarBind($("#configServices > div:last-child > fieldset > div"));
 }
 
 var configServicesVarAdd = function() {
@@ -199,4 +202,27 @@ var configServicesVarAdd = function() {
 			var div = this.parentNode;
 			div.parentNode.removeChild(div);
 			});
+	configServicesVarBind(j.parent().find("div:last-child"));
+}
+
+var configServicesVarBind = function(div) {
+	var getConfigHelp = function(tooltip) {
+		var type = div.find("select").val();
+		var service = div.parent().find("legend").text();
+		var i = service.indexOf(" (") + 2
+		service = service.substr(i, service.length - i - 1);
+		if (type == "") {
+			$(tooltip).html("No help available");
+			return;
+		}
+		$.ajax({
+			url: document.location.pathname + "confighelp?" + service + "_" + type,
+			dataType: "text",
+			async: false,
+			success: function(data, textStatus, XMLHttpRequest) {
+				$(tooltip).html(data);
+			}
+		});
+	}
+	div.find("p").wTooltip({callBefore: getConfigHelp, content: true});
 }

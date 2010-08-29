@@ -27,9 +27,9 @@ handlers:
 #  static_files: static/crossdomain.xml
 #  upload: static/crossdomain.xml
 
-- url: /_static/((admin|jquery\.form)\.(js|css))
+- url: /_static/((admin|jquery\.form|wtooltip)\.(js|css))
   static_files: static/\1
-  upload: static/(admin|jquery\.form)\.(js|css)
+  upload: static/(admin|jquery\.form|wtooltip)\.(js|css)
 
 - url: /.*
   script: app.py

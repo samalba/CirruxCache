@@ -118,6 +118,14 @@ h1, #tabs, #footer {
 	visibility: hidden;
 }
 
+#configServices>div>fieldset>div>p {
+	display: inline;
+	padding-left: 5px;
+	padding-right: 5px;
+	font-weight: bold;
+	cursor: help;
+}
+
 #footer {
 	padding-top: 15px;
 	text-align: center;

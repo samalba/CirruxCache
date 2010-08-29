@@ -57,7 +57,7 @@ class Service(object):
 
 	- origin: Set the origin url
 	- forceTTL: Does not honor Cache-Control value, replacing cache TTL by this value
-	- maxTTL: When the Cache-Control value is honored (forceTTL not set), the cache TTL
+	- maxTTL: When the CacheControl value is honored (forceTTL not set), the cache TTL
 	value cannot be greater than this value (otherwise, it is overriden).
 	- ignoreQueryString: Tell if the trailing HTTP query string is not taken into account
 	to generate the cache object key in Datastore. In other terms, if this value is set
