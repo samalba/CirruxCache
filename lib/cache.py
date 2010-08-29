@@ -56,7 +56,7 @@ class Service(object):
 	on the Google Datastore (with a Memcache top layer).
 
 	- origin: Set the origin url
-	- forceTTL: Does not honor Cache-Control value, replacing cache TTL by this value
+	- forceTTL: Does not honor CacheControl value, replacing cache TTL by this value
 	- maxTTL: When the CacheControl value is honored (forceTTL not set), the cache TTL
 	value cannot be greater than this value (otherwise, it is overriden).
 	- ignoreQueryString: Tell if the trailing HTTP query string is not taken into account

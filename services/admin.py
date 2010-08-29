@@ -36,8 +36,8 @@ class Admin(object):
 		return self.__request(request)
 
 	def __request(self, request):
-		#if not users.is_current_user_admin():
-		#	raise web.SeeOther(users.create_login_url(web.ctx.path))
+		if not users.is_current_user_admin():
+			raise web.SeeOther(users.create_login_url(web.ctx.path))
 		if not request:
 			try:
 				f = file('static/admin.html')
