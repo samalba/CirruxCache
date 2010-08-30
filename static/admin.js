@@ -176,21 +176,6 @@ var configServicesAdd = function() {
 			div.parentNode.removeChild(div);
 			});
 	$("#configServices > div:last-child > fieldset > input[type=button]").bind("click", configServicesVarAdd);
-	var select = $("#configServices > div:last-child > fieldset > div > select");
-	select.bind("mousedown", function() {
-			$.ajax({
-				url: document.location.pathname + "configvars?" + type,
-				dataType: "text",
-				async: false,
-				success: function(data, textStatus, XMLHttpRequest) {
-					var a = eval(data);
-					select.html("<option value=\"\">&lt;Variable&gt;</option>");
-					for (var i in a) {
-						select.append("<option>" + a[i] + "</option>");
-					}
-				}
-			});
-			});
 	configServicesVarBind($("#configServices > div:last-child > fieldset > div"));
 }
 
@@ -206,6 +191,22 @@ var configServicesVarAdd = function() {
 }
 
 var configServicesVarBind = function(div) {
+	var select = div.find("select");
+	var type = $("#config > div > fieldset:eq(1) > select").val();
+	select.bind("mousedown", function() {
+			$.ajax({
+				url: document.location.pathname + "configvars?" + type,
+				dataType: "text",
+				async: false,
+				success: function(data, textStatus, XMLHttpRequest) {
+					var a = eval(data);
+					select.html("<option value=\"\">&lt;Variable&gt;</option>");
+					for (var i in a) {
+						select.append("<option>" + a[i] + "</option>");
+					}
+				}
+			});
+			});
 	var getConfigHelp = function(tooltip) {
 		var type = div.find("select").val();
 		var service = div.parent().find("legend").text();
