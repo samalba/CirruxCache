@@ -190,9 +190,15 @@ var configServicesVarAdd = function() {
 	configServicesVarBind(j.parent().find("div:last-child"));
 }
 
+var parseServiceType = function(legend) {
+	var service = legend.text();
+	var i = service.indexOf(" (") + 2;
+	return service.substr(i, service.length - i - 1);
+}
+
 var configServicesVarBind = function(div) {
 	var select = div.find("select");
-	var type = $("#config > div > fieldset:eq(1) > select").val();
+	var type = parseServiceType(div.parent().find("legend"));
 	select.bind("mousedown", function() {
 			$.ajax({
 				url: document.location.pathname + "configvars?" + type,
@@ -209,9 +215,7 @@ var configServicesVarBind = function(div) {
 			});
 	var getConfigHelp = function(tooltip) {
 		var type = div.find("select").val();
-		var service = div.parent().find("legend").text();
-		var i = service.indexOf(" (") + 2
-		service = service.substr(i, service.length - i - 1);
+		var service = parseServiceType(div.parent().find("legend"));
 		if (type == "") {
 			$(tooltip).html("No help available");
 			return;
