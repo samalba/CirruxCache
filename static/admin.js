@@ -22,6 +22,7 @@ $(document).ready(function() {
 		$("#config > div > fieldset:eq(0) > input[type=button]").bind("click", configMappingAdd);
 		$("#configMapping > div > select").bind("mousedown", configMappingSelect);
 		$("#config > div > fieldset:eq(1) > input[type=button]").bind("click", configServicesAdd);
+		test();
 		});
 
 var showMessage = function(target, message) {
@@ -142,29 +143,54 @@ var configClose = function() {
 	document.location.reload();
 }
 
-var configMappingAdd = function() {
-	$("#configMapping").append("<div>" + $("#configMapping > div:first-child").html() + "</div>");
-	$("#configMapping > div > select").bind("mousedown", configMappingSelect);
-	$("#configMapping > div:last-child > input:first-child").bind("click", function() {
-			var div = this.parentNode;
-			div.parentNode.removeChild(div);
-			});
+var test = function() {
+	// Test to load config
+	configServicesAdd("Test", "redirect");
+	configServicesVarAdd("foo", "bar");
+	configMappingAdd("/(.*)", "Test");
 }
 
-var configMappingSelect = function() {
-	this.innerHTML = "<option>&lt;Service Name&gt;</option>";
+var configMappingAdd = function(name, type) {
+	fromEvent = (this.type != undefined);
+	if (fromEvent || $("#configMapping").children().length > 1)
+	{
+		$("#configMapping").append("<div>" + $("#configMapping > div:first-child").html() + "</div>");
+		$("#configMapping > div:last-child > select").bind("mousedown", configMappingSelect);
+		$("#configMapping > div:last-child > input[type=button]").bind("click", function() {
+				var div = this.parentNode;
+				div.parentNode.removeChild(div);
+				});
+	}
+	if (fromEvent)
+		return;
+	var select = $("#configMapping > div:last-child > select");
+	configMappingSelect(select);
+	$("#configMapping > div:last-child > input[type=text]").val(name);
+	select.val(type);
+}
+
+var configMappingSelect = function(target) {
+	if (this.type != undefined) {
+		target = $(this);
+	}
+	var html = "<option>&lt;Service Name&gt;</option>";
 	var legend = $("#configServices > div > fieldset > legend");
 	for (var i = 0; i < legend.length; ++i) {
 		var v = legend[i].innerHTML;
 		if (v == "")
 			continue;
-		this.innerHTML += "<option>" + v.substr(0, v.indexOf(" (")) + "</option>";
+		var value = v.substr(0, v.indexOf(" ("));
+		html += "<option value=\"" + value + "\">" + value + "</option>";
 	}
+	target.html(html);
 }
 
-var configServicesAdd = function() {
-	var type = $("#config > div > fieldset:eq(1) > select").val();
-	var title = $("#config > div > fieldset:eq(1) > input[type=text]").val();
+var configServicesAdd = function(title, type) {
+	if (this.type != undefined)
+	{
+		type = $("#config > div > fieldset:eq(1) > select").val();
+		title = $("#config > div > fieldset:eq(1) > input[type=text]").val();
+	}
 	if (type == "" || title == "") {
 		alert("Select a type AND set a service name.");
 		return;
@@ -179,15 +205,26 @@ var configServicesAdd = function() {
 	configServicesVarBind($("#configServices > div:last-child > fieldset > div"));
 }
 
-var configServicesVarAdd = function() {
-	var j = $(this);
-	var html = j.next().html();
-	j.parent().append("<div>" + html + "</div>");
-	j.parent().find("div:last-child > input[type=button]").bind("click", function() {
+var configServicesVarAdd = function(type, value) {
+	fromEvent = (this.type != undefined);
+	var target = $(this);
+	if (!fromEvent)
+		target = $("#configServices > div:last-child > fieldset > input[type=button]");
+	var html = target.next().html();
+	target.parent().append("<div>" + html + "</div>");
+	target.parent().find("div:last-child > input[type=button]").bind("click", function() {
 			var div = this.parentNode;
 			div.parentNode.removeChild(div);
 			});
-	configServicesVarBind(j.parent().find("div:last-child"));
+	configServicesVarBind(target.parent().find("div:last-child"));
+	if (!fromEvent) {
+		var select = target.parent().find("div:last-child > select");
+		select.html(select.html() + "<option value=\"" + type + "\">" + type + "</option>");
+		select.val(type);
+		target.parent().find("div:last-child > input[type=text]").val(value);
+		if ($("#configServices").children().length <= 1)
+			return;
+	}
 }
 
 var parseServiceType = function(legend) {
@@ -208,7 +245,7 @@ var configServicesVarBind = function(div) {
 					var a = eval(data);
 					select.html("<option value=\"\">&lt;Variable&gt;</option>");
 					for (var i in a) {
-						select.append("<option>" + a[i] + "</option>");
+						select.append("<option value=\"" + a[i] + "\">" + a[i] + "</option>");
 					}
 				}
 			});
