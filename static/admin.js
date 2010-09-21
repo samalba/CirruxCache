@@ -147,13 +147,18 @@ var test = function() {
 	// Test to load config
 	configServicesAdd("Test", "redirect");
 	configServicesVarAdd("foo", "bar");
-	configMappingAdd("/(.*)", "Test");
+	configServicesVarAdd("blah", "toto");
+	configServicesAdd("Tata", "cache");
+	configServicesVarAdd("1", "2");
+	configServicesVarAdd("42", "ab");
+	configServicesVarAdd("burp", "xxx");
+	configMappingAdd("(/test/.*)", "Test");
+	configMappingAdd("(/tata/.*)", "Tata");
 }
 
 var configMappingAdd = function(name, type) {
 	fromEvent = (this.type != undefined);
-	if (fromEvent || $("#configMapping").children().length > 1)
-	{
+	if (fromEvent || $("#configMapping > div:last-child > select").val() != "") {
 		$("#configMapping").append("<div>" + $("#configMapping > div:first-child").html() + "</div>");
 		$("#configMapping > div:last-child > select").bind("mousedown", configMappingSelect);
 		$("#configMapping > div:last-child > input[type=button]").bind("click", function() {
@@ -186,8 +191,7 @@ var configMappingSelect = function(target) {
 }
 
 var configServicesAdd = function(title, type) {
-	if (this.type != undefined)
-	{
+	if (this.type != undefined) {
 		type = $("#config > div > fieldset:eq(1) > select").val();
 		title = $("#config > div > fieldset:eq(1) > input[type=text]").val();
 	}
@@ -210,13 +214,15 @@ var configServicesVarAdd = function(type, value) {
 	var target = $(this);
 	if (!fromEvent)
 		target = $("#configServices > div:last-child > fieldset > input[type=button]");
-	var html = target.next().html();
-	target.parent().append("<div>" + html + "</div>");
-	target.parent().find("div:last-child > input[type=button]").bind("click", function() {
-			var div = this.parentNode;
-			div.parentNode.removeChild(div);
-			});
-	configServicesVarBind(target.parent().find("div:last-child"));
+	if (fromEvent || target.parent().find("div:last-child > select").val() != "") {
+		var html = target.next().html();
+		target.parent().append("<div>" + html + "</div>");
+		target.parent().find("div:last-child > input[type=button]").bind("click", function() {
+				var div = this.parentNode;
+				div.parentNode.removeChild(div);
+				});
+		configServicesVarBind(target.parent().find("div:last-child"));
+	}
 	if (!fromEvent) {
 		var select = target.parent().find("div:last-child > select");
 		select.html(select.html() + "<option value=\"" + type + "\">" + type + "</option>");
