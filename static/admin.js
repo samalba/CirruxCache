@@ -18,11 +18,12 @@ $(document).ready(function() {
 		$("#store > fieldset > input[type=text]").bind("blur", checkStorePath);
 		$("#stats > input[type=button]").bind("click", function() { fetchStats(true) });
 		$("#config > fieldset > input").bind("click", configNewFile);
-		$("#config > div > input + input[type=button]").bind("click", configClose);
+		$("#config > div > input[type=button]:first-child").bind("click", configSave);
+		$("#config > div > input[type=button] + input[type=button]").bind("click", configClose);
 		$("#config > div > fieldset:eq(0) > input[type=button]").bind("click", configMappingAdd);
 		$("#configMapping > div > select").bind("mousedown", configMappingSelect);
 		$("#config > div > fieldset:eq(1) > input[type=button]").bind("click", configServicesAdd);
-		test();
+		//test();
 		});
 
 var showMessage = function(target, message) {
@@ -154,6 +155,7 @@ var test = function() {
 	configServicesVarAdd("burp", "xxx");
 	configMappingAdd("(/test/.*)", "Test");
 	configMappingAdd("(/tata/.*)", "Tata");
+	configSave();
 }
 
 var configMappingAdd = function(name, type) {
@@ -178,7 +180,7 @@ var configMappingSelect = function(target) {
 	if (this.type != undefined) {
 		target = $(this);
 	}
-	var html = "<option>&lt;Service Name&gt;</option>";
+	var html = "<option value=\"\">&lt;Service Name&gt;</option>";
 	var legend = $("#configServices > div > fieldset > legend");
 	for (var i = 0; i < legend.length; ++i) {
 		var v = legend[i].innerHTML;
@@ -273,4 +275,41 @@ var configServicesVarBind = function(div) {
 		});
 	}
 	div.find("p").wTooltip({callBefore: getConfigHelp, content: true});
+}
+
+var configSave = function() {
+	var config = "[[\n";
+	$("#configServices > div").each(function(index, element) {
+			element = $(element);
+			var legend = element.find("fieldset > legend");
+			var t = legend.text();
+			var name = t.substr(0, t.indexOf(" ("));
+			if (name) {
+				var type = parseServiceType(legend);
+				config += '"' + name + '", "' + type + '",\n[\n';
+				element.find("fieldset > div").each(function(index, element) {
+					element = $(element);
+					name = element.find("input[type=text]").val();
+					if (name)
+						type = element.find("select").val();
+						config += '"' + name + '", "' + type + '",\n';
+					});
+				config += '],\n';
+			}
+			});
+	config += "],\n[";
+	$("#configMapping > div").each(function(index, element) {
+			element = $(element);
+			var name = element.find("input[type=text]").val();
+			var type = element.find("select").val();
+			if (type)
+				config += '"' + name + '", "' + type + '",\n';
+			});
+	config += "]]";
+	$.ajax({
+		type: "POST",
+		url: document.location.pathname + "configsave",
+		dataType: "text",
+		data: config
+	});
 }

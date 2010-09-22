@@ -110,3 +110,8 @@ class Admin(object):
 			return 'No help available'
 		doc = textwrap.wrap(e.group(1).strip(), 50)
 		return '<br />'.join(doc)
+
+	def cmdConfigsave(self):
+		data = web.data()
+		logging.warning('### ' + data)
+		return ''
