@@ -113,5 +113,29 @@ class Admin(object):
 
 	def cmdConfigsave(self):
 		data = web.data()
-		logging.warning('### ' + data)
+		logging.warning('### %s' % data)
 		return ''
+
+	def cmdConfigload(self):
+		data = web.input()['configFile']
+		logging.warning('<<< %s' % data)
+		test = """
+		[[
+"Test", "redirect",
+[
+"foo", "bar",
+"blah", "toto",
+],
+"Tata", "cache",
+[
+"1", "2",
+"42", "ab",
+"burp", "xxx",
+],
+],
+["(/test/.*)", "Test",
+"(/tata/.*)", "Tata",
+]]
+"""
+		logging.warning('>>> %s' % test)
+		return test
