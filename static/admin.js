@@ -143,9 +143,12 @@ var configLoadFile = function() {
 	form.ajaxSubmit({
 		url: document.location.pathname + "configload",
 		dataType: "script",
+		error: function(XMLHttpRequest, textStatus, errorThrown) {
+			showMessage("#config > span", textStatus);
+			},
 		success: function(data, textStatus, XMLHttpRequest) {
-			alert(data);
 			configLoad(data);
+			configNewFile();
 			}
 		});
 }
@@ -321,9 +324,11 @@ var configSave = function() {
 			});
 	config += "]]";
 	$.ajax({
+		target: "_blank",
 		type: "POST",
 		url: document.location.pathname + "configsave",
 		dataType: "text",
+		processData: false,
 		data: config
 	});
 }
