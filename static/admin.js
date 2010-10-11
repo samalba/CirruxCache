@@ -32,14 +32,13 @@ var showMessage = function(target, message) {
 	t.html(message);
 	t.slideDown("fast");
 	setTimeout(function() { t.slideUp("fast") }, 3000);
-}
+};
 
 var flush = function() {
 	var data = $("#flush > textarea")[0].value.split("\n");
 	var message = "";
 	var j = 0;
-	for (var i = 0; i < data.length; ++i)
-	{
+	for (var i = 0; i < data.length; ++i) {
 		var req = jQuery.trim(data[i]);
 		$.ajax({type: "DELETE",
 				url: req,
@@ -50,7 +49,7 @@ var flush = function() {
 						showMessage("#flush > span", message);
 				}});
 	}
-}
+};
 
 var fetchStore = function(force) {
 	var target = $("#store > ul");
@@ -65,7 +64,7 @@ var fetchStore = function(force) {
 			target.html(data);
 			}
 		});
-}
+};
 
 var checkStorePath = function() {
 	var url = $("#store > fieldset > input[type=text]")[0];
@@ -75,7 +74,7 @@ var checkStorePath = function() {
 		return false;
 	}
 	return true;
-}
+};
 
 var newStore = function() {
 	if (!checkStorePath())
@@ -91,7 +90,7 @@ var newStore = function() {
 			showMessage("#store > span", "Error. Is billing mode enabled on this AppEngine account?");
 			}
 		});
-}
+};
 
 var addStore = function(data, textStatus, XMLHttpRequest) {
 	var form = $("#store > fieldset > form");
@@ -104,7 +103,7 @@ var addStore = function(data, textStatus, XMLHttpRequest) {
 			showMessage("#store > span", "Upload successful");
 			}
 		});
-}
+};
 
 var delStore = function(url) {
 	var c = confirm("Remove this file?");
@@ -116,7 +115,7 @@ var delStore = function(url) {
 		dataType: "text",
 		complete: function() { fetchStore(true); }
 	});
-}
+};
 
 var fetchStats = function(force) {
 	var target = $("#stats > ul");
@@ -131,12 +130,12 @@ var fetchStats = function(force) {
 			target.html(data);
 			}
 		});
-}
+};
 
 var configNewFile = function() {
 	$("#config > fieldset").slideUp("fast");
 	$("#config > div").slideDown("fast");
-}
+};
 
 var configLoadFile = function() {
 	var form = $("#config > fieldset > form");
@@ -151,14 +150,14 @@ var configLoadFile = function() {
 			configNewFile();
 			}
 		});
-}
+};
 
 var configClose = function() {
 	if (!confirm("All this configuration will be lost!"))
 		return;
 	document.location.href = document.location.pathname + "#config";
 	document.location.reload();
-}
+};
 
 var test = function() {
 	configLoad();
@@ -173,7 +172,7 @@ var test = function() {
 	configServicesVarAdd("burp", "xxx");
 	configMappingAdd("(/test/.*)", "Test");
 	configMappingAdd("(/tata/.*)", "Tata");
-}
+};
 
 var configMappingAdd = function(name, type) {
 	fromEvent = (this.type != undefined);
@@ -191,7 +190,7 @@ var configMappingAdd = function(name, type) {
 	configMappingSelect(select);
 	$("#configMapping > div:last-child > input[type=text]").val(name);
 	select.val(type);
-}
+};
 
 var configMappingSelect = function(target) {
 	if (this.type != undefined) {
@@ -207,7 +206,7 @@ var configMappingSelect = function(target) {
 		html += "<option value=\"" + value + "\">" + value + "</option>";
 	}
 	target.html(html);
-}
+};
 
 var configServicesAdd = function(title, type) {
 	if (this.type != undefined) {
@@ -226,7 +225,7 @@ var configServicesAdd = function(title, type) {
 			});
 	$("#configServices > div:last-child > fieldset > input[type=button]").bind("click", configServicesVarAdd);
 	configServicesVarBind($("#configServices > div:last-child > fieldset > div"));
-}
+};
 
 var configServicesVarAdd = function(type, value) {
 	fromEvent = (this.type != undefined);
@@ -250,13 +249,13 @@ var configServicesVarAdd = function(type, value) {
 		if ($("#configServices").children().length <= 1)
 			return;
 	}
-}
+};
 
 var parseServiceType = function(legend) {
 	var service = legend.text();
 	var i = service.indexOf(" (") + 2;
 	return service.substr(i, service.length - i - 1);
-}
+};
 
 var configServicesVarBind = function(div) {
 	var select = div.find("select");
@@ -290,9 +289,9 @@ var configServicesVarBind = function(div) {
 				$(tooltip).html(data);
 			}
 		});
-	}
+	};
 	div.find("p").wTooltip({callBefore: getConfigHelp, content: true});
-}
+};
 
 var configSave = function() {
 	var config = "[[\n";
@@ -323,15 +322,11 @@ var configSave = function() {
 				config += '"' + name + '", "' + type + '",\n';
 			});
 	config += "]]";
-	$.ajax({
-		target: "_blank",
-		type: "POST",
-		url: document.location.pathname + "configsave",
-		dataType: "text",
-		processData: false,
-		data: config
-	});
-}
+	var input = '<input type="hidden" name="configFile" value="'+ encodeURIComponent(config) +'" />';
+	var url = document.location.pathname + "configsave";
+	var markup = '<form action="' + url + '" method="POST" target="_blank">' + input + '</form>';
+	jQuery(markup).appendTo('body').submit().remove();
+};
 
 var configLoad = function(content) {
 	content = eval(content);
@@ -347,4 +342,4 @@ var configLoad = function(content) {
 	for (var i = 0; i < mapping.length; i += 2) {
 		configMappingAdd(mapping[i], mapping[i + 1]);
 	}
-}
+};

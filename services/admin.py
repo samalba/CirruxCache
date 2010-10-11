@@ -19,6 +19,7 @@
 import logging
 import re
 import textwrap
+import urllib
 
 import web
 from google.appengine.api import users
@@ -111,18 +112,21 @@ class Admin(object):
 		doc = textwrap.wrap(e.group(1).strip(), 50)
 		return '<br />'.join(doc)
 
-	def __formatType(self, var):
-		var = var.strip('\'"')
-		if var.lower() in ['true', 'false']:
-			return var.capitalize()
-		if var.find(',') >= 0:
-			return '[%s]' % ', '.join(['\'%s\'' % v.strip() for v in var.split(',')])
-		if var.find('://') >= 0:
-			return '\'%s\'' % var
-		return var
-
 	def cmdConfigsave(self):
-		data = eval(web.data())
+
+		def formatType(var):
+			var = var.strip('\'"')
+			if var.lower() in ['true', 'false']:
+				return var.capitalize()
+			if var.find(',') >= 0:
+				return '[%s]' % ', '.join(['\'%s\'' % v.strip() for v in var.split(',')])
+			if var.find('://') >= 0:
+				return '\'%s\'' % var
+			return var
+
+		data = urllib.unquote(web.input(_method='post')['configFile'])
+		logging.warning('### %s' % data)
+		data = eval(data)
 		services = data[0]
 		urls = data[1]
 		ret = 'urls[\'default\'] = (\n'
@@ -133,29 +137,32 @@ class Admin(object):
 			ret += 'class %s(%s.Service):\n' % (services[i], services[i + 1])
 			var = services[i + 2]
 			for j in range(0, len(var), 2):
-				ret += '\t%s = %s\n' % (var[j], self.__formatType(var[j + 1]))
+				ret += '\t%s = %s\n' % (var[j], formatType(var[j + 1]))
 			ret += '\n'
 		f = file('config.py')
 		ret = f.read(939) + ret
 		f.close()
-		print 'Content-Type: application/octet-stream'
-		print 'Content-Disposition: attachment; filename=config.py'
+		web.header('Content-Type', 'text/x-python')
+		web.header('Content-Disposition', 'attachment; filename=config.py')
 		return ret
 
 	def cmdConfigload(self):
-		try:
-			data = web.input()['configFile']
-			ret = '[[\n'
-			e = re.search('urls\[.default.\][^\(]+\((.+)\)\n', data, re.M | re.S)
-			urls = eval('[%s]' % e.group(1))
-			for cls in re.finditer('class\s+(\w+)\((\w+)[^\)]+\):[\r\n]+', data):
-				ret += '"%s", "%s",\n[\n' % (cls.group(1), cls.group(2))
-				for var in re.finditer('([\S]+)\s*=\s*([^\r\n]+)', data[cls.end():]):
-					ret += '"%s", "%s",\n' % (var.group(1), var.group(2))
-				ret += '],\n'
-			ret += '],\n%s]' % str(urls).replace('config.', '')
-			return ret
-		except Exception, e:
-			error = web.BadRequest()
-			error.message = str(e)
-			raise error
+
+		def formatType(var):
+			# strip comments
+			n = var.find('#')
+			if n >= 0:
+				var = var[:n]
+			return var.strip('\'"[] ')
+
+		data = web.input()['configFile']
+		ret = '[[\n'
+		e = re.search('urls\[.default.\][^\(]+\((.+)\)\n', data, re.M | re.S)
+		urls = eval('[%s]' % e.group(1))
+		for cls in re.finditer('class\s+(\w+)\((\w+)[^\)]+\):[\r\n]+', data):
+			ret += '"%s", "%s",\n[\n' % (cls.group(1), cls.group(2))
+			for var in re.finditer('([\S]+)\s*=\s*([^\r\n]+)', data[cls.end():]):
+				ret += '"%s", "%s",\n' % (var.group(1), formatType(var.group(2)))
+			ret += '],\n'
+		ret += '],\n%s]' % str(urls).replace('config.', '')
+		return ret
