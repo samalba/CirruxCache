@@ -270,7 +270,7 @@ class Service(object):
 	def prefetchContent(self, response):
 		if not 'content-type' in response.headers:
 			return
-		mimeTypes = response.headers['content-type'].replace(' ', '').split(',')
+		mimeTypes = response.headers['content-type'].replace(' ', '').replace(',', ';').split(';')
 		flag = False
 		for mTypes in self.prefetch:
 			if mTypes in mimeTypes:
@@ -279,11 +279,11 @@ class Service(object):
 		if not flag:
 			return
 		data = response.content
-		rpc = urlfetch.create_rpc()
-		for e in re.finditer('(?:href|src)="([^"]+)"', data):
+		for e in re.finditer('(?:href|src)\s*=\s*[\'"]([^\'"]+)[\'"]', data, re.I):
 			url = e.group(1)
 			if url[:8].find('://') < 0:
 				if not url.startswith('/'):
 					url = '/' + url
 				url = web.ctx.home + url
+			rpc = urlfetch.create_rpc()
 			urlfetch.make_fetch_call(rpc, url)
