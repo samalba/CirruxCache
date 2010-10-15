@@ -57,7 +57,6 @@ class VhostMapper(object):
 
 	def __iter__(self):
 		base = (
-				#'/_debug/(.*)', 'Debug',
 				'/_admin/(.*)', 'Admin',
 				'/_store/(.*)', 'Store',
 				'/_cron/(.*)', 'Cron'
