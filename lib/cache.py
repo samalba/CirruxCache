@@ -65,6 +65,10 @@ class Service(object):
 	- forwardPost: If it is True, POST requests will be forwarded, instead of being redirected
 	- allowFlushFrom: Specify client IP which are allowed to make DELETE requests to flush
 	cache object explicitly.
+	- disableIfModifiedSince: Disable IMS request during object refresh.
+	- prefetch: (EXPERIMENTAL) Prefetch content from HTML or other pages. Takes a list of
+	ContentType to prefetch.
+	- headerBlacklist: Set list of origin headers to remove.
 	"""
 
 	origin = None
@@ -78,11 +82,13 @@ class Service(object):
 	disableIfModifiedSince = False
 
 	# These headers won't be forwarded
-	headerBlacklist = [
+	headerBlacklist = []
+	_headerBlacklist = [
 			'date',
 			'last-modified',
 			'via',
-			'expires'
+			'expires',
+			'etag'
 			]
 
 	def __init__(self):
@@ -223,6 +229,7 @@ class Service(object):
 			return cache
 		elif response.status_code != 200:
 			forward.forwardResponse(response)
+		# got 200, new content
 		cache = self.cache(key_name=request)
 		cache.data = db.Blob(response.content)
 		if self.prefetch:
@@ -234,7 +241,7 @@ class Service(object):
 		else:
 			cache.lastModified = web.parsehttpdate(response.headers['last-modified'])
 		cache.expires = cache.lastRefresh + datetime.timedelta(seconds=cache.maxAge)
-		for h in self.headerBlacklist:
+		for h in self._headerBlacklist + self.headerBlacklist:
 			if h in response.headers:
 				del response.headers[h]
 		cache.headers = []

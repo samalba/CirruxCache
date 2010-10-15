@@ -26,9 +26,8 @@ urls = {}
 # EDIT BELOW
 
 urls['default'] = (
-		'(/debug/.*)', 'Debug',
 		'(/data/.*)', 'config.Static',
-		'/www(/.*)', 'config.Www',
+		'/www(/.*)', 'config.Www'
 		)
 
 # POP definition
