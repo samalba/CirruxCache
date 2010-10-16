@@ -118,11 +118,14 @@ class Admin(object):
 			var = var.strip('\'"')
 			if var.lower() in ['true', 'false']:
 				return var.capitalize()
-			if var.find(',') >= 0:
-				return '[%s]' % ', '.join(['\'%s\'' % v.strip() for v in var.split(',')])
 			if var.find('://') >= 0:
+				# URL is *currently* the only string type
 				return '\'%s\'' % var
-			return var
+			try:
+				int(var)
+				return var
+			except ValueError:
+				return '[%s]' % ', '.join(['\'%s\'' % v.strip() for v in var.split(',')])
 
 		data = urllib.unquote(web.input(_method='post')['configFile'])
 		data = eval(data)
@@ -132,6 +135,8 @@ class Admin(object):
 		for i in range(0, len(urls), 2):
 			ret += "\t\t'%s', 'config.%s',\n" % (urls[i], urls[i + 1])
 		ret += '\t\t)\n\n'
+		ret += '# POP definition\n'
+		ret += '# You can define and configure your Point Of Presence\n\n'
 		for i in range(0, len(services), 3):
 			ret += 'class %s(%s.Service):\n' % (services[i], services[i + 1])
 			var = services[i + 2]
