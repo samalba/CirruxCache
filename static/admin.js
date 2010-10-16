@@ -44,7 +44,7 @@ var flush = function() {
 				url: req,
 				dataType: "text",
 				complete: function(XMLHttpRequest, textStatus) {
-					message += ++j + ") " + textStatus + "<br />";
+					message += ++j + ": " + textStatus + "<br />";
 					if (i == data.length)
 						showMessage("#flush > span", message);
 				}});

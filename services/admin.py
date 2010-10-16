@@ -125,13 +125,12 @@ class Admin(object):
 			return var
 
 		data = urllib.unquote(web.input(_method='post')['configFile'])
-		logging.warning('### %s' % data)
 		data = eval(data)
 		services = data[0]
 		urls = data[1]
 		ret = 'urls[\'default\'] = (\n'
 		for i in range(0, len(urls), 2):
-			ret += '\t\t"%s", "%s",\n' % (urls[i], urls[i + 1])
+			ret += "\t\t'%s', 'config.%s',\n" % (urls[i], urls[i + 1])
 		ret += '\t\t)\n\n'
 		for i in range(0, len(services), 3):
 			ret += 'class %s(%s.Service):\n' % (services[i], services[i + 1])
@@ -157,12 +156,18 @@ class Admin(object):
 
 		data = web.input()['configFile']
 		ret = '[[\n'
-		e = re.search('urls\[.default.\][^\(]+\((.+)\)\n', data, re.M | re.S)
-		urls = eval('[%s]' % e.group(1))
+		e = re.search('urls\[.default.\][^\(]+\(', data)
+		end = data.find(')\n', e.end())
+		urls = data[e.end():end]
+		urls = eval('[%s]' % urls)
 		for cls in re.finditer('class\s+(\w+)\((\w+)[^\)]+\):[\r\n]+', data):
 			ret += '"%s", "%s",\n[\n' % (cls.group(1), cls.group(2))
-			for var in re.finditer('([\S]+)\s*=\s*([^\r\n]+)', data[cls.end():]):
+			tmp = data[cls.end():]
+			for var in re.finditer('([\S]+)\s*=\s*([^\r\n]+)[\r\n]?', tmp):
 				ret += '"%s", "%s",\n' % (var.group(1), formatType(var.group(2)))
+				if re.match('^[\r\n]+', tmp[var.end():]):
+					# We are at the end of the class
+					break
 			ret += '],\n'
 		ret += '],\n%s]' % str(urls).replace('config.', '')
 		return ret
