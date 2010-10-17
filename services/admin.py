@@ -20,6 +20,7 @@ import logging
 import re
 import textwrap
 import urllib
+import traceback
 
 import web
 from google.appengine.api import users
@@ -127,28 +128,34 @@ class Admin(object):
 			except ValueError:
 				return '[%s]' % ', '.join(['\'%s\'' % v.strip() for v in var.split(',')])
 
-		data = urllib.unquote(web.input(_method='post')['configFile'])
-		data = eval(data)
-		services = data[0]
-		urls = data[1]
-		ret = 'urls[\'default\'] = (\n'
-		for i in range(0, len(urls), 2):
-			ret += "\t\t'%s', 'config.%s',\n" % (urls[i], urls[i + 1])
-		ret += '\t\t)\n\n'
-		ret += '# POP definition\n'
-		ret += '# You can define and configure your Point Of Presence\n\n'
-		for i in range(0, len(services), 3):
-			ret += 'class %s(%s.Service):\n' % (services[i], services[i + 1])
-			var = services[i + 2]
-			for j in range(0, len(var), 2):
-				ret += '\t%s = %s\n' % (var[j], formatType(var[j + 1]))
-			ret += '\n'
-		f = file('config.py')
-		ret = f.read(939) + ret
-		f.close()
-		web.header('Content-Type', 'text/x-python')
-		web.header('Content-Disposition', 'attachment; filename=config.py')
-		return ret
+		try:
+			data = urllib.unquote(web.input(_method='post')['configFile'])
+			data = eval(data)
+			services = data[0]
+			urls = data[1]
+			ret = 'urls[\'default\'] = (\n'
+			for i in range(0, len(urls), 2):
+				ret += "\t\t'%s', 'config.%s',\n" % (urls[i], urls[i + 1])
+			ret += '\t\t)\n\n'
+			ret += '# POP definition\n'
+			ret += '# You can define and configure your Point Of Presence\n\n'
+			for i in range(0, len(services), 3):
+				ret += 'class %s(%s.Service):\n' % (services[i], services[i + 1])
+				var = services[i + 2]
+				for j in range(0, len(var), 2):
+					ret += '\t%s = %s\n' % (var[j], formatType(var[j + 1]))
+				ret += '\n'
+			f = file('config.py')
+			ret = f.read(939) + ret
+			f.close()
+			web.header('Content-Type', 'text/x-python')
+			web.header('Content-Disposition', 'attachment; filename=config.py')
+			return ret
+		except Exception, e:
+			ret = 'Cannot save config file. I you need help, please save this page.\n\n'
+			ret += '--- Exception ---\n%s\n' % traceback.format_exc()
+			ret += '--- Payload ---\n%s' % data
+			return ret
 
 	def cmdConfigload(self):
 
@@ -159,20 +166,23 @@ class Admin(object):
 				var = var[:n]
 			return var.strip('\'"[] ')
 
-		data = web.input()['configFile']
-		ret = '[[\n'
-		e = re.search('urls\[.default.\][^\(]+\(', data)
-		end = data.find(')\n', e.end())
-		urls = data[e.end():end]
-		urls = eval('[%s]' % urls)
-		for cls in re.finditer('class\s+(\w+)\((\w+)[^\)]+\):[\r\n]+', data):
-			ret += '"%s", "%s",\n[\n' % (cls.group(1), cls.group(2))
-			tmp = data[cls.end():]
-			for var in re.finditer('([\S]+)\s*=\s*([^\r\n]+)[\r\n]?', tmp):
-				ret += '"%s", "%s",\n' % (var.group(1), formatType(var.group(2)))
-				if re.match('^[\r\n]+', tmp[var.end():]):
-					# We are at the end of the class
-					break
-			ret += '],\n'
-		ret += '],\n%s]' % str(urls).replace('config.', '')
-		return ret
+		try:
+			data = web.input()['configFile']
+			ret = '[[\n'
+			e = re.search('urls\[.default.\][^\(]+\(', data)
+			end = data.find(')\n', e.end())
+			urls = data[e.end():end]
+			urls = eval('[%s]' % urls)
+			for cls in re.finditer('class\s+(\w+)\((\w+)[^\)]+\):[\r\n]+', data):
+				ret += '"%s", "%s",\n[\n' % (cls.group(1), cls.group(2))
+				tmp = data[cls.end():]
+				for var in re.finditer('([\S]+)\s*=\s*([^\r\n]+)[\r\n]?', tmp):
+					ret += '"%s", "%s",\n' % (var.group(1), formatType(var.group(2)))
+					if re.match('^[\r\n]+', tmp[var.end():]):
+						# We are at the end of the class
+						break
+				ret += '],\n'
+			ret += '],\n%s]' % str(urls).replace('config.', '')
+			return ret
+		except Exception:
+			return 'Cannot load this file: invalid format.'

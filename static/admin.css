@@ -22,7 +22,7 @@ select {
 	width: 20%;
 }
 
-#flush>span:first-child, #store>span:first-child {
+#flush>span:first-child, #store>span:first-child, #config>span:first-child {
 	display: block;
 	text-align: center;
 	color: #777777;

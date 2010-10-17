@@ -24,7 +24,6 @@ $(document).ready(function() {
 		$("#config > div > fieldset:eq(0) > input[type=button]").bind("click", configMappingAdd);
 		$("#configMapping > div > select").bind("mousedown", configMappingSelect);
 		$("#config > div > fieldset:eq(1) > input[type=button]").bind("click", configServicesAdd);
-		//test();
 		});
 
 var showMessage = function(target, message) {
@@ -142,12 +141,14 @@ var configLoadFile = function() {
 	form.ajaxSubmit({
 		url: document.location.pathname + "configload",
 		dataType: "script",
-		error: function(XMLHttpRequest, textStatus, errorThrown) {
-			showMessage("#config > span", textStatus);
-			},
 		success: function(data, textStatus, XMLHttpRequest) {
-			configLoad(data);
-			configNewFile();
+			try {
+				configLoad(data);
+				configNewFile();
+			}
+			catch (e) {
+				showMessage("#config > span", data);
+			}
 			}
 		});
 };
@@ -157,21 +158,6 @@ var configClose = function() {
 		return;
 	document.location.href = document.location.pathname + "#config";
 	document.location.reload();
-};
-
-var test = function() {
-	configLoad();
-	return;
-	// Test to load config
-	configServicesAdd("Test", "redirect");
-	configServicesVarAdd("foo", "bar");
-	configServicesVarAdd("blah", "toto");
-	configServicesAdd("Tata", "cache");
-	configServicesVarAdd("1", "2");
-	configServicesVarAdd("42", "ab");
-	configServicesVarAdd("burp", "xxx");
-	configMappingAdd("(/test/.*)", "Test");
-	configMappingAdd("(/tata/.*)", "Tata");
 };
 
 var configMappingAdd = function(name, type) {
