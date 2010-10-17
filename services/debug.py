@@ -36,4 +36,5 @@ class Debug(object):
 			key = '-'.join([k.capitalize() for k in key[5:].split('_')])
 			headers[key] = value
 		headers['User-Agent'] = http.userAgent
-		yield 'headers: %s' % pp.pformat(headers)
+		yield 'headers: %s\n' % pp.pformat(headers)
+		yield 'web.input(): %s\n' % pp.pformat(web.input())

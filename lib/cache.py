@@ -98,17 +98,17 @@ class Service(object):
 		# if not, pickle cannot find it for serialization
 		globals()[self.name] = self.cache
 
-	def GET(self, request):
+	def GET(self, request, _beforeWriteCache=None):
 		if self.ignoreQueryString is False:
 			request += web.ctx.query
 		try:
 			cache = self.readCache(request)
 			if cache is None:
-				cache = self.writeCache(request)
+				cache = self.writeCache(request, _beforeWriteCache=_beforeWriteCache)
 		except runtime.DeadlineExceededError:
 			raise web.SeeOther(self.origin + request, absolute=True)
 		except CacheExpired, cache:
-			cache = self.writeCache(request, cache())
+			cache = self.writeCache(request, cache=cache(), _beforeWriteCache=_beforeWriteCache)
 		if not web.modified(cache.lastModified):
 			raise web.HTTPError(status='304 Not Modified')
 		web.header('Expires', web.httpdate(cache.expires))
@@ -197,7 +197,7 @@ class Service(object):
 		self.memcacheSet(key=key, value=cache, time=cache.expires)
 		return cache
 
-	def writeCache(self, request, cache = None):
+	def writeCache(self, request, cache=None, _beforeWriteCache=None):
 		logging.debug('writeCache')
 		url = self.origin + request
 		headers = {'User-Agent' : http.userAgent}
@@ -231,7 +231,10 @@ class Service(object):
 			forward.forwardResponse(response)
 		# got 200, new content
 		cache = self.cache(key_name=request)
-		cache.data = db.Blob(response.content)
+		data = response.content
+		if not _beforeWriteCache is None:
+			data = _beforeWriteCache(data)
+		cache.data = db.Blob(data)
 		if self.prefetch:
 			self.prefetchContent(response)
 		cache.maxAge = self.getMaxAge(response.headers)
