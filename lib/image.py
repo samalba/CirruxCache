@@ -57,7 +57,11 @@ class Service(cache.Service):
 		l = list(args)
 		l.sort()
 		# Rewrite query string sorted to keep the same cache key
-		web.ctx.query = '?' + '&'.join(['%s=%s' % (k, args[k]) for k in l if k in filter])
+		web.ctx.query = u'?' + '&'.join(['%s=%s' % (k, args[k]) for k in l if k in filter])
+		# clean query string
+		web.ctx.query = web.ctx.query.replace('=&', '&').strip('=')
+		if web.ctx.query == '?':
+			web.ctx.query = u''
 		return args
 
 	def transform(self, img, args):
