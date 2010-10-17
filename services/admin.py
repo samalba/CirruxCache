@@ -80,9 +80,9 @@ class Admin(object):
 		return data
 
 	def cmdConfigvars(self):
-		if not web.ctx.env["QUERY_STRING"] in ['cache', 'redirect', 'forward']:
+		if not web.ctx.env["QUERY_STRING"] in ['cache', 'redirect', 'forward', 'image']:
 			raise web.BadRequest()
-		from lib import cache, redirect, forward
+		from lib import cache, redirect, forward, image
 		try:
 			service = '%s.Service' % web.ctx.env["QUERY_STRING"]
 			d = eval("dir(%s)" % service);
@@ -100,9 +100,9 @@ class Admin(object):
 			raise web.BadRequest()
 		var = service[1]
 		service = service[0]
-		if not service in ['cache', 'redirect', 'forward']:
+		if not service in ['cache', 'redirect', 'forward', 'image']:
 			raise web.BadRequest()
-		from lib import cache, redirect, forward
+		from lib import cache, redirect, forward, image
 		data = eval('%s.Service.__doc__' % service)
 		e = re.search('- %s: ([^-]+)' % var, data, re.MULTILINE)
 		# Force browser cache
@@ -146,7 +146,7 @@ class Admin(object):
 					ret += '\t%s = %s\n' % (var[j], formatType(var[j + 1]))
 				ret += '\n'
 			f = file('config.py')
-			ret = f.read(939) + ret
+			ret = f.read(946) + ret
 			f.close()
 			web.header('Content-Type', 'text/x-python')
 			web.header('Content-Disposition', 'attachment; filename=config.py')

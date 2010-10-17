@@ -19,7 +19,7 @@
 """CirruxCache configuration file
 """
 
-from lib import cache, redirect, forward
+from lib import cache, redirect, forward, image
 urls = {}
 
 
