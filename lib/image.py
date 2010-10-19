@@ -27,7 +27,10 @@ class _StoreMeta(db.Model):
 
 class Service(cache.Service):
 
-	ignoreQueryString = False
+	def __init__(self):
+		self.ignoreQueryString = False
+		self.stripForwardedQueryString = True
+		cache.Service.__init__(self)
 
 	def GET(self, request):
 		args = self.parseArguments()
@@ -45,7 +48,7 @@ class Service(cache.Service):
 		def transformCache(cache):
 			img = images.Image(image_data=cache)
 			return self.transform(img, args)
-	
+
 		if not args:
 			return cache.Service.GET(self, request)
 		return cache.Service.GET(self, request, _beforeWriteCache=transformCache)
@@ -57,11 +60,19 @@ class Service(cache.Service):
 		l = list(args)
 		l.sort()
 		# Rewrite query string sorted to keep the same cache key
-		web.ctx.query = u'?' + '&'.join(['%s=%s' % (k, args[k]) for k in l if k in filter])
-		# clean query string
-		web.ctx.query = web.ctx.query.replace('=&', '&').strip('=')
-		if web.ctx.query == '?':
+		query = []
+		for k in l:
+			if not k in filter:
+				continue
+			v = args[k]
+			if not v:
+				query.append(k)
+			else:
+				query.append('%s=%s' % (k, v))
+		if not query:
 			web.ctx.query = u''
+		else:
+			web.ctx.query = '?' + '&'.join(query)
 		return args
 
 	def transform(self, img, args):
@@ -81,7 +92,7 @@ class Service(cache.Service):
 			if 'vertical_flip' in args:
 				img.vertical_flip()
 			if 'crop' in args:
-				crop = [int(x) for x in args['crop'].split(';')]
+				crop = [float(x) for x in args['crop'].split('-')]
 				img.crop(crop[0], crop[1], crop[2], crop[3])
 			if 'enhance' in args:
 				img.im_feeling_lucky()

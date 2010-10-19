@@ -28,7 +28,8 @@ urls = {}
 urls['default'] = (
 		'(/debug/.*)', 'Debug',
 		'(/data/.*)', 'config.Static',
-		'/www(/.*)', 'config.Www'
+		'/www(/.*)', 'config.Www',
+		'(/images/.*)', 'config.Images'
 		)
 
 # POP definition
@@ -45,3 +46,6 @@ class Www(cache.Service):
 	forceTTL = 3600 # 1 hour
 	ignoreQueryString = True
 	forwardPost = False
+
+class Images(image.Service):
+	origin = 'http://www.google.com'

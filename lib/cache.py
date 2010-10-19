@@ -80,6 +80,9 @@ class Service(object):
 	allowFlushFrom = ['127.0.0.1']
 	prefetch = []
 	disableIfModifiedSince = False
+	# undocumented: remove querystring before forwarding
+	# the request to the origin
+	stripForwardedQueryString = False
 
 	# These headers won't be forwarded
 	headerBlacklist = []
@@ -200,6 +203,8 @@ class Service(object):
 	def writeCache(self, request, cache=None, _beforeWriteCache=None):
 		logging.debug('writeCache')
 		url = self.origin + request
+		if self.stripForwardedQueryString is True:
+			url = url.split('?').pop(0)
 		headers = {'User-Agent' : http.userAgent}
 		# Bypass google cache
 		headers['Cache-Control'] = 'no-cache, max-age=0, must-revalidate'
