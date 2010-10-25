@@ -66,8 +66,7 @@ class Service(object):
 	- allowFlushFrom: Specify client IP which are allowed to make DELETE requests to flush
 	cache object explicitly.
 	- disableIfModifiedSince: Disable IMS request during object refresh.
-	- prefetch: (EXPERIMENTAL) Prefetch content from HTML or other pages. Takes a list of
-	ContentType to prefetch.
+	- prefetch: (EXPERIMENTAL) Prefetch content from HTML or other pages (default: False).
 	- headerBlacklist: Set list of origin headers to remove.
 	"""
 
@@ -78,7 +77,7 @@ class Service(object):
 	forwardPost = True
 	# Set your client IP address to authorize cache entry deletion
 	allowFlushFrom = ['127.0.0.1']
-	prefetch = []
+	prefetch = False
 	disableIfModifiedSince = False
 	# undocumented: remove querystring before forwarding
 	# the request to the origin
@@ -286,12 +285,7 @@ class Service(object):
 		if not 'content-type' in response.headers:
 			return
 		mimeTypes = response.headers['content-type'].replace(' ', '').replace(',', ';').split(';')
-		flag = False
-		for mTypes in self.prefetch:
-			if mTypes in mimeTypes:
-				flag = True
-				break
-		if not flag:
+		if mimeTypes != 'text/html':
 			return
 		data = response.content
 		for e in re.finditer('(?:href|src)\s*=\s*[\'"]([^\'"]+)[\'"]', data, re.I):
