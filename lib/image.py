@@ -27,6 +27,20 @@ class _StoreMeta(db.Model):
 
 class Service(cache.Service):
 
+	"""Image service inherited from Cache service
+
+	This service implements image transformation. All images transformed are cached.
+
+	- origin: Set the origin url (type: String; mandatory)
+	- forceTTL: Does not honor CacheControl value, replacing cache TTL by this value (type: Integer)
+	- maxTTL: When the CacheControl value is honored (forceTTL not set), the cache TTL
+	value cannot be greater than this value (otherwise, it is overriden). (type: Integer)
+	- allowFlushFrom: Specify client IP which are allowed to make DELETE requests to flush
+	cache object explicitly. (type: List)
+	- disableIfModifiedSince: Disable IMS request during object refresh. (type: Boolean; default: False)
+	- headerBlacklist: Set list of origin headers to remove. (type: List)
+	"""
+
 	def __init__(self):
 		self.ignoreQueryString = False
 		self.stripForwardedQueryString = True

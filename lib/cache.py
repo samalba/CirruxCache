@@ -55,19 +55,19 @@ class Service(object):
 	All requests handled by this service produces cache manipulation
 	on the Google Datastore (with a Memcache top layer).
 
-	- origin: Set the origin url
-	- forceTTL: Does not honor CacheControl value, replacing cache TTL by this value
+	- origin: Set the origin url (type: String; mandatory)
+	- forceTTL: Does not honor CacheControl value, replacing cache TTL by this value (type: Integer)
 	- maxTTL: When the CacheControl value is honored (forceTTL not set), the cache TTL
-	value cannot be greater than this value (otherwise, it is overriden).
+	value cannot be greater than this value (otherwise, it is overriden). (type: Integer)
 	- ignoreQueryString: Tell if the trailing HTTP query string is not taken into account
 	to generate the cache object key in Datastore. In other terms, if this value is set
-	to True, /url/path/obj.js?v=42 and /url/path/obj.js referer to the same object.
-	- forwardPost: If it is True, POST requests will be forwarded, instead of being redirected
+	to True, /url/path/obj.js?v=42 and /url/path/obj.js referer to the same object. (type: Boolean; default: False)
+	- forwardPost: If it is True, POST requests will be forwarded, instead of being redirected (type: Boolean; default: True)
 	- allowFlushFrom: Specify client IP which are allowed to make DELETE requests to flush
-	cache object explicitly.
-	- disableIfModifiedSince: Disable IMS request during object refresh.
-	- prefetch: (EXPERIMENTAL) Prefetch content from HTML or other pages (default: False).
-	- headerBlacklist: Set list of origin headers to remove.
+	cache object explicitly. (type: List)
+	- disableIfModifiedSince: Disable IMS request during object refresh. (type: Boolean; default: False)
+	- prefetch: (EXPERIMENTAL) Prefetch content from HTML or other pages. (type: Boolean; default: False)
+	- headerBlacklist: Set list of origin headers to remove. (type: List)
 	"""
 
 	origin = None

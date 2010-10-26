@@ -26,7 +26,7 @@ urls = {}
 # EDIT BELOW
 
 urls['default'] = (
-		'(/debug/.*)', 'Debug',
+		#'(/debug/.*)', 'Debug',
 		'(/data/.*)', 'config.Static',
 		'/www(/.*)', 'config.Www'
 		)

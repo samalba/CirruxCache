@@ -28,7 +28,7 @@ class Service(http.Base):
 	All requests handled by this service will be forwarded
 	to the origin.
 
-	- origin: Set the origin url
+	- origin: Set the origin url (type: String; mandatory)
 	"""
 
 	origin = None

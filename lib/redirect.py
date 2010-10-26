@@ -26,8 +26,8 @@ class Service(http.Base):
 	All requests handled by this service will be redirected
 	to the origin.
 
-	- origin: Set the origin url
-	- code: Set the redirection code (default: 301)
+	- origin: Set the origin url (type: String; mandatory)
+	- code: Set the redirection code (type: Integer; default: 301)
 	"""
 
 	origin = None
