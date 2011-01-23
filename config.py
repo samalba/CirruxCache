@@ -26,22 +26,22 @@ urls = {}
 # EDIT BELOW
 
 urls['default'] = (
-		#'(/debug/.*)', 'Debug',
-		'(/data/.*)', 'config.Static',
-		'/www(/.*)', 'config.Www'
-		)
+        #'(/debug/.*)', 'Debug',
+        '(/data/.*)', 'config.Static',
+        '/www(/.*)', 'config.Www'
+        )
 
 # POP definition
 # You can define and configure your Point Of Presence
 
 class Static(cache.Service):
-	origin = 'http://static.mydomain.tld'
-	maxTTL = 2592000 # 1 month
-	ignoreQueryString = True
+    origin = 'http://static.mydomain.tld'
+    maxTTL = 2592000 # 1 month
+    ignoreQueryString = True
 
 class Www(cache.Service):
-	origin = 'http://www.mydomain.tld'
-	allowFlushFrom = ['127.0.0.1']
-	forceTTL = 3600 # 1 hour
-	ignoreQueryString = True
-	forwardPost = False
+    origin = 'http://www.mydomain.tld'
+    allowFlushFrom = ['127.0.0.1']
+    forceTTL = 3600 # 1 hour
+    ignoreQueryString = True
+    forwardPost = False

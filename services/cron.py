@@ -28,41 +28,41 @@ import lib.cache
 
 class Cron(object):
 
-	def GET(self, request):
-		if not 'HTTP_X_APPENGINE_CRON' in web.ctx.environ:
-			return ''
-		request = request.lower()
-		if not hasattr(self, request):
-			return ''
-		attr = getattr(self, request)
-		if callable(attr):
-			attr()
-		return ''
+    def GET(self, request):
+        if not 'HTTP_X_APPENGINE_CRON' in web.ctx.environ:
+            return ''
+        request = request.lower()
+        if not hasattr(self, request):
+            return ''
+        attr = getattr(self, request)
+        if callable(attr):
+            attr()
+        return ''
 
-	def expired(self):
-		"""clear old cache entries"""
-		# Allow an offset of 1 hour to flush cache entries.
-		now = datetime.datetime.utcnow() - datetime.timedelta(hours=1)
-		# entity selection is limited by 1000 but often timeout
-		limit = 800
-		batch = []
-		# Browse all Datastore kinds to find expired entities
-		for kind in stats.KindStat.all():
-			if kind.kind_name.startswith('__'):
-				continue
-			cache = type(str(kind.kind_name), (lib.cache.Cache,), {})
-			for obj in cache.all(keys_only=True) \
-					.filter('expires <=', now) \
-					.order('expires').fetch(limit):
-						batch.append(obj)
-		n = len(batch)
-		if n == 0:
-			logging.info('cron: no expired entities.')
-			return
-		# batch deletion is limited by 500 but it timeouts above ~200
-		step = 200
-		if step > n:
-			step = n
-		for i in range(0, limit, step):
-			db.delete(batch[i:i+step])
-		logging.info('cron: %s expired entities flushed.' % n)
+    def expired(self):
+        """clear old cache entries"""
+        # Allow an offset of 1 hour to flush cache entries.
+        now = datetime.datetime.utcnow() - datetime.timedelta(hours=1)
+        # entity selection is limited by 1000 but often timeout
+        limit = 800
+        batch = []
+        # Browse all Datastore kinds to find expired entities
+        for kind in stats.KindStat.all():
+            if kind.kind_name.startswith('__'):
+                continue
+            cache = type(str(kind.kind_name), (lib.cache.Cache,), {})
+            for obj in cache.all(keys_only=True) \
+                    .filter('expires <=', now) \
+                    .order('expires').fetch(limit):
+                        batch.append(obj)
+        n = len(batch)
+        if n == 0:
+            logging.info('cron: no expired entities.')
+            return
+        # batch deletion is limited by 500 but it timeouts above ~200
+        step = 200
+        if step > n:
+            step = n
+        for i in range(0, limit, step):
+            db.delete(batch[i:i+step])
+        logging.info('cron: %s expired entities flushed.' % n)

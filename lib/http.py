@@ -20,67 +20,67 @@ userAgent = 'CirruxCache trunk / shad (http://code.google.com/p/cirruxcache/) ;'
 
 # Copy from httplib
 httpResponses = {
-		100: 'Continue',
-		101: 'Switching Protocols',
+        100: 'Continue',
+        101: 'Switching Protocols',
 
-		200: 'OK',
-		201: 'Created',
-		202: 'Accepted',
-		203: 'Non-Authoritative Information',
-		204: 'No Content',
-		205: 'Reset Content',
-		206: 'Partial Content',
+        200: 'OK',
+        201: 'Created',
+        202: 'Accepted',
+        203: 'Non-Authoritative Information',
+        204: 'No Content',
+        205: 'Reset Content',
+        206: 'Partial Content',
 
-		300: 'Multiple Choices',
-		301: 'Moved Permanently',
-		302: 'Found',
-		303: 'See Other',
-		304: 'Not Modified',
-		305: 'Use Proxy',
-		306: '(Unused)',
-		307: 'Temporary Redirect',
+        300: 'Multiple Choices',
+        301: 'Moved Permanently',
+        302: 'Found',
+        303: 'See Other',
+        304: 'Not Modified',
+        305: 'Use Proxy',
+        306: '(Unused)',
+        307: 'Temporary Redirect',
 
-		400: 'Bad Request',
-		401: 'Unauthorized',
-		402: 'Payment Required',
-		403: 'Forbidden',
-		404: 'Not Found',
-		405: 'Method Not Allowed',
-		406: 'Not Acceptable',
-		407: 'Proxy Authentication Required',
-		408: 'Request Timeout',
-		409: 'Conflict',
-		410: 'Gone',
-		411: 'Length Required',
-		412: 'Precondition Failed',
-		413: 'Request Entity Too Large',
-		414: 'Request-URI Too Long',
-		415: 'Unsupported Media Type',
-		416: 'Requested Range Not Satisfiable',
-		417: 'Expectation Failed',
+        400: 'Bad Request',
+        401: 'Unauthorized',
+        402: 'Payment Required',
+        403: 'Forbidden',
+        404: 'Not Found',
+        405: 'Method Not Allowed',
+        406: 'Not Acceptable',
+        407: 'Proxy Authentication Required',
+        408: 'Request Timeout',
+        409: 'Conflict',
+        410: 'Gone',
+        411: 'Length Required',
+        412: 'Precondition Failed',
+        413: 'Request Entity Too Large',
+        414: 'Request-URI Too Long',
+        415: 'Unsupported Media Type',
+        416: 'Requested Range Not Satisfiable',
+        417: 'Expectation Failed',
 
-		500: 'Internal Server Error',
-		501: 'Not Implemented',
-		502: 'Bad Gateway',
-		503: 'Service Unavailable',
-		504: 'Gateway Timeout',
-		505: 'HTTP Version Not Supported',
-		}
+        500: 'Internal Server Error',
+        501: 'Not Implemented',
+        502: 'Bad Gateway',
+        503: 'Service Unavailable',
+        504: 'Gateway Timeout',
+        505: 'HTTP Version Not Supported',
+        }
 
 # An empty base class to tell webpy that we implement all HTTP methods
 class Base(object):
 
-	def GET(self, *args):
-		pass
+    def GET(self, *args):
+        pass
 
-	def HEAD(self, *args):
-		pass
+    def HEAD(self, *args):
+        pass
 
-	def POST(self, *args):
-		pass
+    def POST(self, *args):
+        pass
 
-	def PUT(self, *args):
-		pass
+    def PUT(self, *args):
+        pass
 
-	def DELETE(self, *args):
-		pass
+    def DELETE(self, *args):
+        pass

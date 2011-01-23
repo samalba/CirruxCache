@@ -23,93 +23,93 @@ from google.appengine.ext import db
 from lib import cache
 
 class _StoreMeta(db.Model):
-	blobKey = db.StringProperty()
+    blobKey = db.StringProperty()
 
 class Service(cache.Service):
 
-	"""Image service inherited from Cache service
+    """Image service inherited from Cache service
 
-	This service implements image transformation. All images transformed are cached.
+    This service implements image transformation. All images transformed are cached.
 
-	- origin: Set the origin url (type: String; mandatory)
-	- forceTTL: Does not honor CacheControl value, replacing cache TTL by this value (type: Integer)
-	- maxTTL: When the CacheControl value is honored (forceTTL not set), the cache TTL
-	value cannot be greater than this value (otherwise, it is overriden). (type: Integer)
-	- allowFlushFrom: Specify client IP which are allowed to make DELETE requests to flush
-	cache object explicitly. (type: List)
-	- disableIfModifiedSince: Disable IMS request during object refresh. (type: Boolean; default: False)
-	- headerBlacklist: Set list of origin headers to remove. (type: List)
-	"""
+    - origin: Set the origin url (type: String; mandatory)
+    - forceTTL: Does not honor CacheControl value, replacing cache TTL by this value (type: Integer)
+    - maxTTL: When the CacheControl value is honored (forceTTL not set), the cache TTL
+    value cannot be greater than this value (otherwise, it is overriden). (type: Integer)
+    - allowFlushFrom: Specify client IP which are allowed to make DELETE requests to flush
+    cache object explicitly. (type: List)
+    - disableIfModifiedSince: Disable IMS request during object refresh. (type: Boolean; default: False)
+    - headerBlacklist: Set list of origin headers to remove. (type: List)
+    """
 
-	def __init__(self):
-		self.ignoreQueryString = False
-		self.stripForwardedQueryString = True
-		cache.Service.__init__(self)
+    def __init__(self):
+        self.ignoreQueryString = False
+        self.stripForwardedQueryString = True
+        cache.Service.__init__(self)
 
-	def GET(self, request):
-		args = self.parseArguments()
-		if self.origin == 'store://':
-			meta = _StoreMeta.get_by_key_name(request)
-			if not meta:
-				raise web.NotFound()
-			if not args:
-				web.header('X-AppEngine-BlobKey', meta.blobKey)
-				return
-			img = images.Image(blob_key=meta.blobKey)
-			web.header('Content-Type', 'image/jpeg')
-			return self.transform(img, args)
+    def GET(self, request):
+        args = self.parseArguments()
+        if self.origin == 'store://':
+            meta = _StoreMeta.get_by_key_name(request)
+            if not meta:
+                raise web.NotFound()
+            if not args:
+                web.header('X-AppEngine-BlobKey', meta.blobKey)
+                return
+            img = images.Image(blob_key=meta.blobKey)
+            web.header('Content-Type', 'image/jpeg')
+            return self.transform(img, args)
 
-		def transformCache(cache):
-			img = images.Image(image_data=cache)
-			return self.transform(img, args)
+        def transformCache(cache):
+            img = images.Image(image_data=cache)
+            return self.transform(img, args)
 
-		if not args:
-			return cache.Service.GET(self, request)
-		return cache.Service.GET(self, request, _beforeWriteCache=transformCache)
+        if not args:
+            return cache.Service.GET(self, request)
+        return cache.Service.GET(self, request, _beforeWriteCache=transformCache)
 
-	def parseArguments(self):
-		args = web.input(_method='get')
-		filter = ['width', 'height', 'rotate', 'horizontal_flip',\
-				'vertical_flip', 'crop', 'enhance']
-		l = list(args)
-		l.sort()
-		# Rewrite query string sorted to keep the same cache key
-		query = []
-		for k in l:
-			if not k in filter:
-				continue
-			v = args[k]
-			if not v:
-				query.append(k)
-			else:
-				query.append('%s=%s' % (k, v))
-		if not query:
-			web.ctx.query = u''
-		else:
-			web.ctx.query = '?' + '&'.join(query)
-		return args
+    def parseArguments(self):
+        args = web.input(_method='get')
+        filter = ['width', 'height', 'rotate', 'horizontal_flip',\
+                'vertical_flip', 'crop', 'enhance']
+        l = list(args)
+        l.sort()
+        # Rewrite query string sorted to keep the same cache key
+        query = []
+        for k in l:
+            if not k in filter:
+                continue
+            v = args[k]
+            if not v:
+                query.append(k)
+            else:
+                query.append('%s=%s' % (k, v))
+        if not query:
+            web.ctx.query = u''
+        else:
+            web.ctx.query = '?' + '&'.join(query)
+        return args
 
-	def transform(self, img, args):
-		try:
-			width = 0
-			height = 0
-			if 'width' in args:
-				width = int(args['width'])
-			if 'height' in args:
-				height = int(args['height'])
-			if width > 0 or height > 0:
-				img.resize(width=width, height=height)
-			if 'rotate' in args:
-				img.rotate(int(args['rotate']))
-			if 'horizontal_flip' in args:
-				img.horizontal_flip()
-			if 'vertical_flip' in args:
-				img.vertical_flip()
-			if 'crop' in args:
-				crop = [float(x) for x in args['crop'].split('-')]
-				img.crop(crop[0], crop[1], crop[2], crop[3])
-			if 'enhance' in args:
-				img.im_feeling_lucky()
-			return img.execute_transforms(output_encoding=images.JPEG)
-		except Exception:
-			raise web.badrequest()
+    def transform(self, img, args):
+        try:
+            width = 0
+            height = 0
+            if 'width' in args:
+                width = int(args['width'])
+            if 'height' in args:
+                height = int(args['height'])
+            if width > 0 or height > 0:
+                img.resize(width=width, height=height)
+            if 'rotate' in args:
+                img.rotate(int(args['rotate']))
+            if 'horizontal_flip' in args:
+                img.horizontal_flip()
+            if 'vertical_flip' in args:
+                img.vertical_flip()
+            if 'crop' in args:
+                crop = [float(x) for x in args['crop'].split('-')]
+                img.crop(crop[0], crop[1], crop[2], crop[3])
+            if 'enhance' in args:
+                img.im_feeling_lucky()
+            return img.execute_transforms(output_encoding=images.JPEG)
+        except Exception:
+            raise web.badrequest()

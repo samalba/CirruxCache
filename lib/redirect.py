@@ -21,25 +21,25 @@ import http
 
 class Service(http.Base):
 
-	"""Redirect service
+    """Redirect service
 
-	All requests handled by this service will be redirected
-	to the origin.
+    All requests handled by this service will be redirected
+    to the origin.
 
-	- origin: Set the origin url (type: String; mandatory)
-	- code: Set the redirection code (type: Integer; default: 301)
-	"""
+    - origin: Set the origin url (type: String; mandatory)
+    - code: Set the redirection code (type: Integer; default: 301)
+    """
 
-	origin = None
-	code = 301
+    origin = None
+    code = 301
 
-	def __getattribute__(self, attr):
-		# "this" points to the child class
-		# without calling "__getattribute__"
-		this = type(self)
-		def _impl(request):
-			request += web.ctx.query
-			web.header('Location', this.origin + request)
-			status = '%s %s' % (this.code, http.httpResponses[this.code])
-			raise web.HTTPError(status=status)
-		return _impl
+    def __getattribute__(self, attr):
+        # "this" points to the child class
+        # without calling "__getattribute__"
+        this = type(self)
+        def _impl(request):
+            request += web.ctx.query
+            web.header('Location', this.origin + request)
+            status = '%s %s' % (this.code, http.httpResponses[this.code])
+            raise web.HTTPError(status=status)
+        return _impl

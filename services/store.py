@@ -17,7 +17,6 @@
 #
 
 import re
-import logging
 
 import web
 from google.appengine.ext import blobstore

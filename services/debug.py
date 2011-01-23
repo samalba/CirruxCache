@@ -22,19 +22,19 @@ import http
 
 class Debug(object):
 
-	"""Debug service. Useful to dump the client context."""
+    """Debug service. Useful to dump the client context."""
 
-	def GET(self, request):
-		pp = pprint.PrettyPrinter(indent=4)
-		yield 'Request: %s\n' % request
-		yield 'Globals: %s\n' % pp.pformat(globals())
-		yield 'web.ctx: %s\n' % pp.pformat(dict(web.ctx))
-		headers = {}
-		for key, value in web.ctx.environ.iteritems():
-			if not key.startswith('HTTP_'):
-				continue
-			key = '-'.join([k.capitalize() for k in key[5:].split('_')])
-			headers[key] = value
-		headers['User-Agent'] = http.userAgent
-		yield 'headers: %s\n' % pp.pformat(headers)
-		yield 'web.input(): %s\n' % pp.pformat(web.input())
+    def GET(self, request):
+        pp = pprint.PrettyPrinter(indent=4)
+        yield 'Request: %s\n' % request
+        yield 'Globals: %s\n' % pp.pformat(globals())
+        yield 'web.ctx: %s\n' % pp.pformat(dict(web.ctx))
+        headers = {}
+        for key, value in web.ctx.environ.iteritems():
+            if not key.startswith('HTTP_'):
+                continue
+            key = '-'.join([k.capitalize() for k in key[5:].split('_')])
+            headers[key] = value
+        headers['User-Agent'] = http.userAgent
+        yield 'headers: %s\n' % pp.pformat(headers)
+        yield 'web.input(): %s\n' % pp.pformat(web.input())

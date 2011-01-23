@@ -23,42 +23,42 @@ from google.appengine.api import urlfetch, urlfetch_errors
 
 class Service(http.Base):
 
-	"""Forward service
+    """Forward service
 
-	All requests handled by this service will be forwarded
-	to the origin.
+    All requests handled by this service will be forwarded
+    to the origin.
 
-	- origin: Set the origin url (type: String; mandatory)
-	"""
+    - origin: Set the origin url (type: String; mandatory)
+    """
 
-	origin = None
+    origin = None
 
-	def __getattribute__(self, attr):
-		# "this" points to the child class
-		# without calling "__getattribute__"
-		this = type(self)
-		def _impl(request):
-			request += web.ctx.query
-			response = forwardRequest(this.origin + request, method=web.ctx.method)
-			forwardResponse(response)
-		return _impl
+    def __getattribute__(self, attr):
+        # "this" points to the child class
+        # without calling "__getattribute__"
+        this = type(self)
+        def _impl(request):
+            request += web.ctx.query
+            response = forwardRequest(this.origin + request, method=web.ctx.method)
+            forwardResponse(response)
+        return _impl
 
 def forwardResponse(response):
-	status = '%s %s' % (response.status_code, http.httpResponses[response.status_code])
-	raise web.HTTPError(status=status, headers=response.headers, data=response.content)
+    status = '%s %s' % (response.status_code, http.httpResponses[response.status_code])
+    raise web.HTTPError(status=status, headers=response.headers, data=response.content)
 
 def forwardRequest(url, method='GET'):
-	headers = {}
-	for key, value in web.ctx.environ.iteritems():
-		if not key.startswith('HTTP_'):
-			continue
-		key = '-'.join([k.capitalize() for k in key[5:].split('_')])
-		headers[key] = value
-	headers['User-Agent'] = http.userAgent
-	payload = web.data() or None
-	try:
-		return urlfetch.Fetch(url=url, method=method, headers=headers, payload=payload)
-	except urlfetch_errors.Error:
-		# We got an error, redirect to the origin
-		# to let client dealing errors with it.
-		raise web.SeeOther(url)
+    headers = {}
+    for key, value in web.ctx.environ.iteritems():
+        if not key.startswith('HTTP_'):
+            continue
+        key = '-'.join([k.capitalize() for k in key[5:].split('_')])
+        headers[key] = value
+    headers['User-Agent'] = http.userAgent
+    payload = web.data() or None
+    try:
+        return urlfetch.Fetch(url=url, method=method, headers=headers, payload=payload)
+    except urlfetch_errors.Error:
+        # We got an error, redirect to the origin
+        # to let client dealing errors with it.
+        raise web.SeeOther(url)
