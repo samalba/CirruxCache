@@ -1,99 +1,99 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
-<head>
-	<title>CirruxCache Admin</title>
-	<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
-	<link href="/_static/admin.css" rel="stylesheet" type="text/css" />
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js" type="text/javascript"></script>
-	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js" type="text/javascript"></script>
-	<script src="/_static/jquery.form.js" type="text/javascript"></script>
-	<script src="/_static/wtooltip.js" type="text/javascript"></script>
-	<script src="/_static/admin.js" type="text/javascript"></script>
-</head>
-<body>
-	<h1>CirruxCache admin</h1>
-	<div id="tabs">
-		<ul>
-			<li><a href="#flush"><span>Flush</span></a></li>
-			<li><a href="#store"><span>Store</span></a></li>
-			<li><a href="#stats"><span>Stats</span></a></li>
-			<li><a href="#config"><span>Configuration</span></a></li>
-		</ul>
-		<div id="flush">
-			<span></span>
-			<textarea rows="42" cols="42"></textarea>
-			<input type="button" value="flush" />
-			<p>Enter a list of URLs to flush (one per line).</p>
-		</div>
-		<div id="store">
-			<span></span>
-			<fieldset>
-				<legend>Upload a new file</legend>
-				<span>Remote file path: </span><input type="text" value="/_store/my/new/remote/file" />
-				<form method="post" action="#">
-					<div><input type="file" name="storeFile" value="add" /></div>
-				</form>
-			</fieldset>
-			<ul></ul>
-		</div>
-		<div id="stats">
-			<input type="button" value="refresh" />
-			<ul></ul>
-		</div>
-		<div id="config">
-			<span></span>
-			<fieldset>
-				<legend>Configuration file</legend>
-				<input type="button" value="Create new" />
-				<p>OR</p>
-				<form method="post" action="#">
-					<div><input type="file" name="configFile" value="add" /></div>
-				</form>
-			</fieldset>
-			<div>
-				<input type="button" value="Save" />
-				<input type="button" value="Cancel" />
-				<fieldset>
-					<legend>Mapping URLs</legend>
-					<input type="button" value="+" />
-					<div id="configMapping">
-						<div>
-							<input type="button" value="X" />
-							<input type="text" value="(/url/.*)" />
-							<select><option value="">&lt;Service Name&gt;</option></select>
-						</div>
-					</div>
-				</fieldset>
-				<fieldset>
-					<legend>Services</legend>
-					<input type="text" />
-					<select>
-						<option value="">&lt;Service Type&gt;</option>
-						<option>cache</option>
-						<option>redirect</option>
-						<option>forward</option>
-						<option>image</option>
-					</select>
-					<input type="button" value="+" />
-					<div id="configServices">
-						<div>
-							<input type="button" value="X" />
-							<fieldset>
-								<legend></legend>
-								<input type="button" value="+" />
-								<div>
-									<input type="button" value="X" />
-									<select><option value="">&lt;Variable&gt;</option></select>
-									<input type="text" value="" />
-									<p>?</p>
-								</div>
-							</fieldset>
-						<div>
-					</div>
-				</fieldset>
-			</div>
-		</div>
-	</div>
-	<div id="footer">Powered by <a href="http://code.google.com/p/cirruxcache/">CirruxCache</a></div>
-</body>
-</html>
+    <head>
+        <title>CirruxCache Admin</title>
+        <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
+        <link href="/_static/admin.css" rel="stylesheet" type="text/css" />
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js" type="text/javascript"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.min.js" type="text/javascript"></script>
+        <script src="/_static/jquery.form.js" type="text/javascript"></script>
+        <script src="/_static/wtooltip.js" type="text/javascript"></script>
+        <script src="/_static/admin.js" type="text/javascript"></script>
+    </head>
+    <body>
+        <h1>CirruxCache admin</h1>
+        <div id="tabs">
+            <ul>
+                <li><a href="#flush"><span>Flush</span></a></li>
+                <li><a href="#store"><span>Store</span></a></li>
+                <li><a href="#stats"><span>Stats</span></a></li>
+                <li><a href="#config"><span>Configuration</span></a></li>
+            </ul>
+            <div id="flush">
+                <span></span>
+                <textarea rows="42" cols="42"></textarea>
+                <input type="button" value="flush" />
+                <p>Enter a list of URLs to flush (one per line).</p>
+            </div>
+            <div id="store">
+                <span></span>
+                <fieldset>
+                    <legend>Upload a new file</legend>
+                    <span>Remote file path: </span><input type="text" value="/_store/my/new/remote/file" />
+                    <form method="post" action="#">
+                        <div><input type="file" name="storeFile" value="add" /></div>
+                    </form>
+                </fieldset>
+                <ul></ul>
+            </div>
+            <div id="stats">
+                <input type="button" value="refresh" />
+                <ul></ul>
+            </div>
+            <div id="config">
+                <span></span>
+                <fieldset>
+                    <legend>Configuration file</legend>
+                    <input type="button" value="Create new" />
+                    <p>OR</p>
+                    <form method="post" action="#">
+                        <div><input type="file" name="configFile" value="add" /></div>
+                    </form>
+                </fieldset>
+                <div>
+                    <input type="button" value="Save" />
+                    <input type="button" value="Cancel" />
+                    <fieldset>
+                        <legend>Mapping URLs</legend>
+                        <input type="button" value="+" />
+                        <div id="configMapping">
+                            <div>
+                                <input type="button" value="X" />
+                                <input type="text" value="(/url/.*)" />
+                                <select><option value="">&lt;Service Name&gt;</option></select>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>Services</legend>
+                        <input type="text" />
+                        <select>
+                            <option value="">&lt;Service Type&gt;</option>
+                            <option>cache</option>
+                            <option>redirect</option>
+                            <option>forward</option>
+                            <option>image</option>
+                        </select>
+                        <input type="button" value="+" />
+                        <div id="configServices">
+                            <div>
+                                <input type="button" value="X" />
+                                <fieldset>
+                                    <legend></legend>
+                                    <input type="button" value="+" />
+                                    <div>
+                                        <input type="button" value="X" />
+                                        <select><option value="">&lt;Variable&gt;</option></select>
+                                        <input type="text" value="" />
+                                        <p>?</p>
+                                    </div>
+                                </fieldset>
+                                <div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+                <div id="footer">Powered by <a href="http://code.google.com/p/cirruxcache/">CirruxCache</a></div>
+            </body>
+        </html>
