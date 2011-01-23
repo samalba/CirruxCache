@@ -16,89 +16,87 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
+import re
 import logging
 
 import web
 from google.appengine.ext import blobstore
-from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.ext import db
 from google.appengine.api import users
 
 
+BLOB_KEY = re.compile('blob-key=[\'"]*([^\'";\s\r\n]+)', re.M)
+
+
 class _StoreMeta(db.Model):
-	blobKey = db.StringProperty()
+    blobKey = db.StringProperty()
+
 
 class Store(object):
 
-	# This IP list is authorized to upload and remove files
-	allowFrom = ['127.0.0.1']
+    # This IP list is authorized to upload and remove files
+    allowFrom = ['127.0.0.1']
 
-	def GET(self, request):
-		req = web.ctx.path.split('/')
-		cmd = 'cmd' + req.pop().capitalize()
-		if hasattr(self, cmd):
-			attr = getattr(self, cmd)
-			if callable(attr):
-				return attr('/'.join(req))
-		return self.serve(web.ctx.path)
+    def GET(self, request):
+        req = web.ctx.path.split('/')
+        cmd = 'cmd' + req.pop().capitalize()
+        if hasattr(self, cmd):
+            attr = getattr(self, cmd)
+            if callable(attr):
+                return attr('/'.join(req))
+        return self.serve(web.ctx.path)
 
-	def DELETE(self, request):
-		return self.cmdDelete(request)
+    def DELETE(self, request):
+        return self.cmdDelete(request)
 
-	def POST(self, request):
-		return self.PUT(request)
+    def POST(self, request):
+        return self.PUT(request)
 
-	def PUT(self, request):
-		request = web.ctx.path
-		data = web.data()
-		s = data.find('blob-key=')
-		if s < 0:
-			raise web.BadRequest()
-		s += 10
-		e = data.find('"', s)
-		if e < 0:
-			raise web.BadRequest()
-		data = data[s:e]
-		if not data:
-			raise web.BadRequest()
-		if not blobstore.BlobInfo.get(data):
-			# The blobKey does not exist
-			raise web.NotFound()
-		meta = _StoreMeta.get_by_key_name(request)
-		if meta:
-			# Delete the existing blob
-			blobstore.delete(meta.blobKey)
-		meta = _StoreMeta(key_name=request)
-		meta.blobKey = data
-		meta.put()
-		# This redirection is empty and useless,
-		# required from the appengine SDK...
-		raise web.HTTPError(status='302 Found')
+    def PUT(self, request):
+        request = web.ctx.path
+        data = web.data()
+        data = BLOB_KEY.search(data)
+        if not data:
+            raise web.BadRequest()
+        data = data.group(1)
+        if not blobstore.BlobInfo.get(data):
+            # The blobKey does not exist
+            raise web.NotFound()
+        meta = _StoreMeta.get_by_key_name(request)
+        if meta:
+            # Delete the existing blob
+            blobstore.delete(meta.blobKey)
+        meta = _StoreMeta(key_name=request)
+        meta.blobKey = data
+        meta.put()
+        # This redirection is empty and useless,
+        # required from the appengine SDK...
+        raise web.HTTPError(status='302 Found')
 
-	def serve(self, request):
-		meta = _StoreMeta.get_by_key_name(request)
-		if not meta:
-			raise web.NotFound()
-		print 'X-AppEngine-BlobKey: %s' % meta.blobKey
+    def serve(self, request):
+        meta = _StoreMeta.get_by_key_name(request)
+        if not meta:
+            raise web.NotFound()
+        print 'X-AppEngine-BlobKey: %s' % meta.blobKey
 
-	def checkAuth(self):
-		if not web.ctx.env['REMOTE_ADDR'] in self.allowFrom and not users.is_current_user_admin():
-			raise web.Forbidden()
+    def checkAuth(self):
+        if not web.ctx.env['REMOTE_ADDR'] in self.allowFrom and not users.is_current_user_admin():
+            raise web.Forbidden()
 
-	def cmdNew(self, request):
-		self.checkAuth()
-		try:
-			url = blobstore.create_upload_url(request).split('/')[3:]
-		except Exception:
-			raise web.HTTPError(status='501 Not Implemented')
-		url = '/' + '/'.join(url)
-		return '%s' % url
+    def cmdNew(self, request):
+        self.checkAuth()
+        try:
+            url = blobstore.create_upload_url(request).split('/')[3:]
+        except Exception:
+            raise web.HTTPError(status='501 Not Implemented')
+        url = '/' + '/'.join(url)
+        return '%s' % url
 
-	def cmdDelete(self, request):
-		self.checkAuth()
-		meta = _StoreMeta.get_by_key_name(request)
-		if not meta:
-			raise web.NotFound()
-		meta.delete()
-		blobstore.delete(meta.blobKey)
-		return 'OK'
+    def cmdDelete(self, request):
+        self.checkAuth()
+        meta = _StoreMeta.get_by_key_name(request)
+        if not meta:
+            raise web.NotFound()
+        meta.delete()
+        blobstore.delete(meta.blobKey)
+        return 'OK'
